@@ -1,0 +1,1733 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Origen · Sistema Administrativo</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #1b3a60;
+  --navy-deep: #112540;
+  --navy-mid: #254d7a;
+  --navy-light: #2e6095;
+  --gold: #a07838;
+  --gold-light: #c49a4a;
+  --gold-pale: #e8d5b0;
+  --gold-bg: #fdf8f0;
+  --white: #ffffff;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-400: #9ca3af;
+  --gray-600: #4b5563;
+  --gray-800: #1f2937;
+  --red: #dc2626;
+  --red-light: #fef2f2;
+  --green: #16a34a;
+  --green-light: #f0fdf4;
+  --amber: #d97706;
+  --amber-light: #fffbeb;
+  --sidebar-w: 240px;
+  --header-h: 60px;
+  --radius: 10px;
+  --shadow: 0 1px 3px rgba(27,58,96,0.08), 0 4px 16px rgba(27,58,96,0.06);
+  --shadow-lg: 0 8px 32px rgba(27,58,96,0.14);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--gray-100); color: var(--gray-800); min-height: 100vh; display: flex; }
+
+/* SIDEBAR */
+#sidebar {
+  width: var(--sidebar-w);
+  background: var(--navy-deep);
+  min-height: 100vh;
+  position: fixed;
+  left: 0; top: 0;
+  display: flex; flex-direction: column;
+  z-index: 100;
+  transition: transform .3s ease;
+}
+.sidebar-logo {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex; align-items: center; gap: 10px;
+}
+.logo-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 700; color: white;
+}
+.logo-text { color: white; }
+.logo-text strong { display: block; font-size: 14px; font-weight: 600; letter-spacing: .5px; }
+.logo-text span { font-size: 10px; color: var(--gold-pale); opacity: .7; letter-spacing: 1px; text-transform: uppercase; }
+
+.sidebar-user {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex; align-items: center; gap: 10px;
+}
+.user-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: white; flex-shrink: 0;
+}
+.user-info { flex: 1; min-width: 0; }
+.user-info strong { display: block; font-size: 12px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-info span { font-size: 10px; color: var(--gold-pale); opacity: .7; }
+.role-badge {
+  font-size: 9px; padding: 2px 6px; border-radius: 20px;
+  background: var(--gold); color: white; font-weight: 600; text-transform: uppercase; letter-spacing: .5px;
+}
+
+.nav-section { padding: 10px 0; flex: 1; overflow-y: auto; }
+.nav-label { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.3); padding: 8px 16px 4px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 16px;
+  cursor: pointer; font-size: 13px; font-weight: 400;
+  color: rgba(255,255,255,0.6);
+  border-left: 3px solid transparent;
+  transition: all .15s;
+  user-select: none;
+}
+.nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+.nav-item.active { background: rgba(160,120,56,0.15); color: var(--gold-light); border-left-color: var(--gold); font-weight: 500; }
+.nav-item .icon { font-size: 15px; width: 18px; text-align: center; }
+
+#sidebar-toggle {
+  display: none; position: fixed; top: 14px; left: 14px; z-index: 200;
+  background: var(--navy-deep); border: none; color: white; padding: 8px 10px;
+  border-radius: 8px; cursor: pointer; font-size: 18px;
+}
+
+/* MAIN */
+#main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+.topbar {
+  height: var(--header-h);
+  background: white;
+  border-bottom: 1px solid var(--gray-200);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px;
+  position: sticky; top: 0; z-index: 50;
+}
+.topbar-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: var(--navy-deep); }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.topbar-date { font-size: 12px; color: var(--gray-400); }
+.topbar-btn {
+  padding: 6px 14px; border-radius: 7px; border: none; cursor: pointer;
+  font-size: 12px; font-weight: 500; font-family: 'DM Sans', sans-serif;
+  display: flex; align-items: center; gap: 6px; transition: all .15s;
+}
+.btn-primary { background: var(--gold); color: white; }
+.btn-primary:hover { background: var(--gold-light); }
+.btn-outline { background: transparent; border: 1.5px solid var(--gray-200); color: var(--gray-600); }
+.btn-outline:hover { border-color: var(--navy); color: var(--navy); }
+.btn-navy { background: var(--navy); color: white; }
+.btn-navy:hover { background: var(--navy-mid); }
+.btn-red { background: var(--red); color: white; }
+.btn-green { background: var(--green); color: white; }
+
+#content { flex: 1; padding: 24px; max-width: 1300px; }
+
+/* VIEWS */
+.view { display: none; animation: fadeIn .2s ease; }
+.view.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* DASHBOARD */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.kpi-card {
+  background: white; border-radius: var(--radius); padding: 20px;
+  box-shadow: var(--shadow); border-top: 3px solid transparent;
+  position: relative; overflow: hidden;
+}
+.kpi-card.navy { border-top-color: var(--navy); }
+.kpi-card.gold { border-top-color: var(--gold); }
+.kpi-card.green { border-top-color: var(--green); }
+.kpi-card.red { border-top-color: var(--red); }
+.kpi-card.amber { border-top-color: var(--amber); }
+.kpi-label { font-size: 11px; font-weight: 500; color: var(--gray-400); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+.kpi-value { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 700; color: var(--navy-deep); line-height: 1; }
+.kpi-sub { font-size: 11px; color: var(--gray-400); margin-top: 4px; }
+.kpi-icon { position: absolute; right: 16px; top: 16px; font-size: 28px; opacity: .12; }
+
+.section-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+.card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); }
+.card-header { padding: 16px 20px; border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; justify-content: space-between; }
+.card-title { font-size: 13px; font-weight: 600; color: var(--navy-deep); }
+.card-body { padding: 16px 20px; }
+.card-full { grid-column: 1 / -1; }
+
+.mini-table { width: 100%; border-collapse: collapse; }
+.mini-table th { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; color: var(--gray-400); padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--gray-100); }
+.mini-table td { font-size: 12px; padding: 8px 8px; border-bottom: 1px solid var(--gray-50); color: var(--gray-600); vertical-align: middle; }
+.mini-table tr:last-child td { border-bottom: none; }
+.mini-table tr:hover td { background: var(--gray-50); }
+
+.badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 500; }
+.badge-green { background: var(--green-light); color: var(--green); }
+.badge-red { background: var(--red-light); color: var(--red); }
+.badge-amber { background: var(--amber-light); color: var(--amber); }
+.badge-navy { background: #e8eef6; color: var(--navy); }
+.badge-gold { background: var(--gold-bg); color: var(--gold); }
+
+/* CHARTS (pure CSS/SVG bars) */
+.bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 100px; padding: 8px 0; }
+.bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; }
+.bar-fill { width: 100%; border-radius: 4px 4px 0 0; transition: height .4s ease; min-height: 4px; }
+.bar-label { font-size: 9px; color: var(--gray-400); text-align: center; white-space: nowrap; }
+
+.donut-wrap { display: flex; align-items: center; gap: 20px; }
+.donut-legend { flex: 1; }
+.legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 11px; color: var(--gray-600); }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+/* FORMS */
+.form-section { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; margin-bottom: 20px; }
+.form-title { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; color: var(--navy-deep); margin-bottom: 4px; }
+.form-subtitle { font-size: 12px; color: var(--gray-400); margin-bottom: 20px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.form-full { grid-column: 1 / -1; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 11px; font-weight: 600; color: var(--navy-deep); text-transform: uppercase; letter-spacing: .5px; }
+.field input, .field select, .field textarea {
+  padding: 9px 12px; border: 1.5px solid var(--gray-200);
+  border-radius: 7px; font-size: 13px; font-family: 'DM Sans', sans-serif;
+  color: var(--gray-800); background: white; outline: none;
+  transition: border-color .15s;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--navy-light); box-shadow: 0 0 0 3px rgba(27,58,96,0.07); }
+.field textarea { resize: vertical; min-height: 80px; }
+.field-hint { font-size: 10px; color: var(--gray-400); }
+.required { color: var(--gold); }
+
+.payment-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+.payment-opt {
+  border: 2px solid var(--gray-200); border-radius: 8px; padding: 12px 10px;
+  cursor: pointer; text-align: center; transition: all .15s;
+  font-size: 12px; font-weight: 500; color: var(--gray-600);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.payment-opt:hover { border-color: var(--gold); color: var(--navy); }
+.payment-opt.selected { border-color: var(--navy); background: #e8eef6; color: var(--navy); }
+.payment-opt .pay-icon { font-size: 22px; }
+
+.divider { height: 1px; background: var(--gray-100); margin: 20px 0; }
+.form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+/* DATA TABLES */
+.data-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.search-box { flex: 1; min-width: 200px; position: relative; }
+.search-box input { width: 100%; padding: 8px 12px 8px 34px; border: 1.5px solid var(--gray-200); border-radius: 7px; font-size: 12px; font-family: 'DM Sans', sans-serif; outline: none; }
+.search-box input:focus { border-color: var(--navy-light); }
+.search-box::before { content: '🔍'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 12px; pointer-events: none; }
+
+.data-table-wrap { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table thead th { background: var(--navy-deep); color: white; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; padding: 11px 14px; text-align: left; white-space: nowrap; }
+.data-table tbody td { padding: 11px 14px; font-size: 12px; color: var(--gray-600); border-bottom: 1px solid var(--gray-50); vertical-align: middle; }
+.data-table tbody tr:hover td { background: var(--gray-50); }
+.data-table tbody tr:last-child td { border-bottom: none; }
+.action-btns { display: flex; gap: 6px; }
+.action-btn { padding: 4px 10px; border-radius: 5px; border: 1.5px solid var(--gray-200); background: white; font-size: 11px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; }
+.action-btn:hover { border-color: var(--navy); color: var(--navy); }
+.action-btn.del:hover { border-color: var(--red); color: var(--red); }
+.pagination { display: flex; align-items: center; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--gray-100); justify-content: flex-end; }
+.page-btn { width: 28px; height: 28px; border-radius: 6px; border: 1.5px solid var(--gray-200); background: white; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+.page-btn.active { background: var(--navy); border-color: var(--navy); color: white; }
+
+/* CAJA */
+.caja-header { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.caja-card { background: white; border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); text-align: center; }
+.caja-card .amount { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 700; }
+.caja-card .label { font-size: 11px; color: var(--gray-400); text-transform: uppercase; letter-spacing: .5px; margin-top: 4px; }
+.caja-card.ing .amount { color: var(--green); }
+.caja-card.egr .amount { color: var(--red); }
+.caja-card.net .amount { color: var(--navy-deep); }
+
+.caja-list { display: flex; flex-direction: column; gap: 8px; }
+.caja-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: white; border-radius: 8px; border-left: 3px solid transparent; box-shadow: var(--shadow); }
+.caja-item.ingreso { border-left-color: var(--green); }
+.caja-item.egreso { border-left-color: var(--red); }
+.caja-item-info { flex: 1; }
+.caja-item-info strong { display: block; font-size: 13px; color: var(--navy-deep); }
+.caja-item-info span { font-size: 11px; color: var(--gray-400); }
+.caja-item-amount { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 700; }
+.caja-item.ingreso .caja-item-amount { color: var(--green); }
+.caja-item.egreso .caja-item-amount { color: var(--red); }
+
+/* REPORTES */
+.report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+.report-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+.report-card-header { background: var(--navy-deep); padding: 14px 18px; color: white; display: flex; align-items: center; justify-content: space-between; }
+.report-card-title { font-size: 13px; font-weight: 600; }
+.report-card-body { padding: 16px 18px; }
+
+/* ALERTS */
+.alert { padding: 12px 16px; border-radius: 8px; font-size: 12px; display: flex; align-items: flex-start; gap: 10px; margin-bottom: 16px; }
+.alert.success { background: var(--green-light); color: var(--green); border: 1px solid #bbf7d0; }
+.alert.warning { background: var(--amber-light); color: var(--amber); border: 1px solid #fde68a; }
+.alert.error { background: var(--red-light); color: var(--red); border: 1px solid #fecaca; }
+.alert.info { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+
+/* MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: white; border-radius: 12px; padding: 28px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); animation: modalIn .2s ease; }
+@keyframes modalIn { from { transform: scale(.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.modal-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 700; color: var(--navy-deep); margin-bottom: 4px; }
+.modal-sub { font-size: 12px; color: var(--gray-400); margin-bottom: 20px; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+/* TOAST */
+#toast {
+  position: fixed; bottom: 24px; right: 24px; z-index: 2000;
+  background: var(--navy-deep); color: white;
+  padding: 12px 20px; border-radius: 8px; font-size: 13px;
+  box-shadow: var(--shadow-lg); transform: translateY(20px); opacity: 0;
+  transition: all .3s ease; pointer-events: none; max-width: 320px;
+  border-left: 3px solid var(--gold);
+}
+#toast.show { transform: translateY(0); opacity: 1; }
+
+/* TABS */
+.tab-bar { display: flex; gap: 2px; background: var(--gray-100); padding: 4px; border-radius: 9px; margin-bottom: 20px; }
+.tab { flex: 1; text-align: center; padding: 8px 12px; border-radius: 7px; font-size: 12px; font-weight: 500; cursor: pointer; color: var(--gray-400); transition: all .15s; }
+.tab.active { background: white; color: var(--navy-deep); box-shadow: var(--shadow); }
+
+/* PROGRESS */
+.progress-bar { background: var(--gray-100); border-radius: 20px; height: 6px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 20px; transition: width .5s ease; }
+
+/* SCROLL */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 10px; }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  #sidebar { transform: translateX(-100%); }
+  #sidebar.open { transform: translateX(0); }
+  #sidebar-toggle { display: block; }
+  #main { margin-left: 0; }
+  .topbar { padding: 0 16px 0 56px; }
+  #content { padding: 16px; }
+  .form-grid, .form-grid-3, .section-grid, .report-grid, .caja-header { grid-template-columns: 1fr; }
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .data-table-wrap { overflow-x: auto; }
+}
+@media (max-width: 480px) { .kpi-grid { grid-template-columns: 1fr; } }
+
+/* EMPTY STATE */
+.empty-state { text-align: center; padding: 40px 20px; color: var(--gray-400); }
+.empty-state .es-icon { font-size: 40px; margin-bottom: 10px; }
+.empty-state p { font-size: 13px; }
+
+/* STAT ROW */
+.stat-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--gray-50); }
+.stat-row:last-child { border-bottom: none; }
+.stat-row .label { font-size: 12px; color: var(--gray-600); }
+.stat-row .value { font-size: 13px; font-weight: 600; color: var(--navy-deep); }
+
+/* CHIP SELECT */
+.chip-wrap { display: flex; flex-wrap: wrap; gap: 7px; }
+.chip {
+  padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 500;
+  border: 1.5px solid var(--gray-200); cursor: pointer; transition: all .15s; color: var(--gray-600);
+}
+.chip:hover { border-color: var(--gold); color: var(--navy); }
+.chip.active { background: var(--navy); border-color: var(--navy); color: white; }
+
+/* COLOR AMOUNT */
+.pos { color: var(--green); font-weight: 600; }
+.neg { color: var(--red); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<button id="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">O</div>
+    <div class="logo-text">
+      <strong>Origen</strong>
+      <span>Centro Capilar</span>
+    </div>
+  </div>
+  <div class="sidebar-user">
+    <div class="user-avatar">A</div>
+    <div class="user-info">
+      <strong id="user-name-display">Administrador</strong>
+      <span id="user-role-display">Admin</span>
+    </div>
+    <span class="role-badge" id="role-badge">Admin</span>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Principal</div>
+    <div class="nav-item active" onclick="showView('dashboard')"><span class="icon">📊</span> Dashboard</div>
+    <div class="nav-item" onclick="showView('ingresos')"><span class="icon">💰</span> Nuevo Ingreso</div>
+    <div class="nav-item" onclick="showView('egresos')"><span class="icon">📤</span> Nuevo Egreso</div>
+    <div class="nav-item" onclick="showView('caja')"><span class="icon">🏦</span> Control de Caja</div>
+    <div class="nav-label">Gestión</div>
+    <div class="nav-item" onclick="showView('clientes')"><span class="icon">👤</span> Clientes</div>
+    <div class="nav-item" onclick="showView('servicios')"><span class="icon">✂️</span> Servicios</div>
+    <div class="nav-item" onclick="showView('empleados')"><span class="icon">👥</span> Empleados</div>
+    <div class="nav-label">Análisis</div>
+    <div class="nav-item" onclick="showView('reportes')"><span class="icon">📈</span> Reportes</div>
+    <div class="nav-item" onclick="showView('config')"><span class="icon">⚙️</span> Configuración</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <div class="topbar">
+    <div class="topbar-title" id="page-title">Dashboard</div>
+    <div class="topbar-right">
+      <span class="topbar-date" id="current-date"></span>
+      <button class="topbar-btn btn-primary" onclick="showView('ingresos')">+ Registrar</button>
+    </div>
+  </div>
+
+  <div id="content">
+
+    <!-- ===== DASHBOARD ===== -->
+    <div class="view active" id="view-dashboard">
+      <div class="kpi-grid">
+        <div class="kpi-card navy">
+          <div class="kpi-icon">💰</div>
+          <div class="kpi-label">Ingresos Hoy</div>
+          <div class="kpi-value" id="kpi-ing-hoy">S/ 0</div>
+          <div class="kpi-sub" id="kpi-ing-hoy-n">0 transacciones</div>
+        </div>
+        <div class="kpi-card red">
+          <div class="kpi-icon">📤</div>
+          <div class="kpi-label">Egresos Hoy</div>
+          <div class="kpi-value" id="kpi-egr-hoy">S/ 0</div>
+          <div class="kpi-sub">gastos del día</div>
+        </div>
+        <div class="kpi-card green">
+          <div class="kpi-icon">📈</div>
+          <div class="kpi-label">Ganancia Neta</div>
+          <div class="kpi-value" id="kpi-neta">S/ 0</div>
+          <div class="kpi-sub">hoy</div>
+        </div>
+        <div class="kpi-card gold">
+          <div class="kpi-icon">👤</div>
+          <div class="kpi-label">Clientes</div>
+          <div class="kpi-value" id="kpi-clientes">0</div>
+          <div class="kpi-sub">registrados</div>
+        </div>
+        <div class="kpi-card amber">
+          <div class="kpi-icon">✂️</div>
+          <div class="kpi-label">Servicios Hoy</div>
+          <div class="kpi-value" id="kpi-srv-hoy">0</div>
+          <div class="kpi-sub">atendidos</div>
+        </div>
+      </div>
+
+      <div class="section-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Últimas Transacciones</div>
+            <button class="topbar-btn btn-outline" onclick="showView('caja')" style="font-size:11px;padding:4px 10px;">Ver todas</button>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table class="mini-table" id="tbl-ultimas">
+              <thead><tr><th>Cliente</th><th>Servicio</th><th>Monto</th><th>Pago</th></tr></thead>
+              <tbody id="ultimas-tbody">
+                <tr><td colspan="4"><div class="empty-state"><div class="es-icon">📋</div><p>Sin registros aún</p></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Ingresos por Método de Pago</div></div>
+          <div class="card-body">
+            <div id="chart-metodo" class="bar-chart"></div>
+            <div id="metodo-legend" style="margin-top:8px;"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Desempeño del Personal</div></div>
+          <div class="card-body" style="padding:0;">
+            <table class="mini-table" id="tbl-personal">
+              <thead><tr><th>Empleado</th><th>Servicios</th><th>Ingresos</th><th>Comisión</th></tr></thead>
+              <tbody id="personal-tbody">
+                <tr><td colspan="4"><div class="empty-state"><div class="es-icon">👥</div><p>Sin datos</p></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Servicios Más Realizados</div></div>
+          <div class="card-body" style="padding:0;">
+            <table class="mini-table" id="tbl-top-srv">
+              <thead><tr><th>Servicio</th><th>Veces</th><th>Total</th></tr></thead>
+              <tbody id="top-srv-tbody">
+                <tr><td colspan="3"><div class="empty-state"><div class="es-icon">✂️</div><p>Sin datos</p></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Resumen Financiero del Mes</div>
+        </div>
+        <div class="card-body">
+          <div id="resumen-mes" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;">
+            <div><div class="kpi-label">Ingresos mes</div><div class="kpi-value" id="rm-ing" style="font-size:22px;">S/ 0</div></div>
+            <div><div class="kpi-label">Egresos mes</div><div class="kpi-value" id="rm-egr" style="font-size:22px;color:var(--red);">S/ 0</div></div>
+            <div><div class="kpi-label">Ganancia mes</div><div class="kpi-value" id="rm-net" style="font-size:22px;color:var(--green);">S/ 0</div></div>
+            <div><div class="kpi-label">Clientes atendidos</div><div class="kpi-value" id="rm-cli" style="font-size:22px;">0</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== NUEVO INGRESO ===== -->
+    <div class="view" id="view-ingresos">
+      <div class="form-section">
+        <div class="form-title">Registrar Ingreso</div>
+        <div class="form-subtitle">Complete los datos de la transacción</div>
+
+        <div class="form-grid">
+          <div class="field">
+            <label>Fecha y Hora <span class="required">*</span></label>
+            <input type="datetime-local" id="ing-fecha">
+          </div>
+          <div class="field">
+            <label>Empleado Responsable <span class="required">*</span></label>
+            <select id="ing-empleado">
+              <option value="">Seleccionar empleado...</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Cliente <span class="required">*</span></label>
+            <select id="ing-cliente">
+              <option value="">Seleccionar cliente...</option>
+              <option value="nuevo">+ Nuevo cliente</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Tipo <span class="required">*</span></label>
+            <select id="ing-tipo" onchange="updateTipo()">
+              <option value="">Seleccionar tipo...</option>
+              <option value="servicio">Servicio</option>
+              <option value="producto">Venta de Producto</option>
+              <option value="paquete">Paquete / Promoción</option>
+              <option value="consulta">Consulta</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Servicio / Producto <span class="required">*</span></label>
+            <select id="ing-servicio">
+              <option value="">Primero seleccione tipo...</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Monto (S/) <span class="required">*</span></label>
+            <input type="number" id="ing-monto" placeholder="0.00" min="0" step="0.10" oninput="calcularComision()">
+          </div>
+          <div class="field">
+            <label>Descuento (S/)</label>
+            <input type="number" id="ing-descuento" placeholder="0.00" min="0" step="0.10" oninput="calcularComision()">
+          </div>
+          <div class="field">
+            <label>% Comisión Empleado</label>
+            <input type="number" id="ing-comision-pct" placeholder="20" min="0" max="100" oninput="calcularComision()">
+            <span class="field-hint">Monto comisión: <strong id="comision-monto">S/ 0.00</strong></span>
+          </div>
+          <div class="field form-full">
+            <label>Observaciones del Servicio</label>
+            <textarea id="ing-obs" placeholder="Notas sobre el servicio, estado del cabello, productos usados..."></textarea>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <div style="font-size:12px;font-weight:600;color:var(--navy-deep);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;">Método de Pago</div>
+        <div class="payment-grid" id="payment-grid">
+          <div class="payment-opt" onclick="selectPago('efectivo')" data-pay="efectivo">
+            <div class="pay-icon">💵</div><div>Efectivo</div>
+          </div>
+          <div class="payment-opt" onclick="selectPago('transferencia')" data-pay="transferencia">
+            <div class="pay-icon">🏦</div><div>Transferencia</div>
+          </div>
+          <div class="payment-opt" onclick="selectPago('pos')" data-pay="pos">
+            <div class="pay-icon">💳</div><div>POS / Tarjeta</div>
+          </div>
+          <div class="payment-opt" onclick="selectPago('yape')" data-pay="yape">
+            <div class="pay-icon">📱</div><div>Yape</div>
+          </div>
+          <div class="payment-opt" onclick="selectPago('plin')" data-pay="plin">
+            <div class="pay-icon">📲</div><div>Plin</div>
+          </div>
+          <div class="payment-opt" onclick="selectPago('otro_pago')" data-pay="otro_pago">
+            <div class="pay-icon">💬</div><div>Otro</div>
+          </div>
+        </div>
+
+        <div id="pago-referencia-wrap" style="margin-top:14px;display:none;">
+          <div class="field">
+            <label>Número de Referencia / Comprobante</label>
+            <input type="text" id="ing-referencia" placeholder="Ej: operación 123456">
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <div style="background:var(--gold-bg);border-radius:8px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:13px;color:var(--gray-600);">Total a cobrar:</span>
+          <span style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--navy-deep);" id="total-display">S/ 0.00</span>
+        </div>
+        <div class="form-actions">
+          <button class="topbar-btn btn-outline" onclick="clearIngreso()">Limpiar</button>
+          <button class="topbar-btn btn-navy" onclick="guardarIngreso()">✓ Registrar Ingreso</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== NUEVO EGRESO ===== -->
+    <div class="view" id="view-egresos">
+      <div class="form-section">
+        <div class="form-title">Registrar Egreso</div>
+        <div class="form-subtitle">Registre gastos y salidas de dinero</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Fecha <span class="required">*</span></label>
+            <input type="date" id="egr-fecha">
+          </div>
+          <div class="field">
+            <label>Categoría <span class="required">*</span></label>
+            <select id="egr-categoria">
+              <option value="">Seleccionar categoría...</option>
+              <option value="productos">Compra de Productos</option>
+              <option value="insumos">Insumos / Materiales</option>
+              <option value="sueldos">Sueldos</option>
+              <option value="comisiones">Comisiones</option>
+              <option value="alquiler">Alquiler</option>
+              <option value="servicios_basicos">Servicios Básicos (luz/agua)</option>
+              <option value="publicidad">Publicidad / Marketing</option>
+              <option value="equipos">Equipos / Herramientas</option>
+              <option value="mantenimiento">Mantenimiento</option>
+              <option value="varios">Gastos Varios</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Descripción <span class="required">*</span></label>
+            <input type="text" id="egr-desc" placeholder="Descripción del gasto">
+          </div>
+          <div class="field">
+            <label>Monto (S/) <span class="required">*</span></label>
+            <input type="number" id="egr-monto" placeholder="0.00" min="0" step="0.10">
+          </div>
+          <div class="field">
+            <label>Proveedor / Destinatario</label>
+            <input type="text" id="egr-proveedor" placeholder="Nombre del proveedor o persona">
+          </div>
+          <div class="field">
+            <label>Comprobante / Factura</label>
+            <input type="text" id="egr-comprobante" placeholder="Nro. de factura o boleta">
+          </div>
+          <div class="field form-full">
+            <label>Observaciones</label>
+            <textarea id="egr-obs" placeholder="Notas adicionales..."></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="topbar-btn btn-outline" onclick="clearEgreso()">Limpiar</button>
+          <button class="topbar-btn btn-red" onclick="guardarEgreso()">📤 Registrar Egreso</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CONTROL DE CAJA ===== -->
+    <div class="view" id="view-caja">
+      <div class="caja-header">
+        <div class="caja-card ing">
+          <div class="amount" id="caja-ing-total">S/ 0.00</div>
+          <div class="label">Ingresos del Día</div>
+        </div>
+        <div class="caja-card egr">
+          <div class="amount" id="caja-egr-total">S/ 0.00</div>
+          <div class="label">Egresos del Día</div>
+        </div>
+        <div class="caja-card net">
+          <div class="amount" id="caja-net-total">S/ 0.00</div>
+          <div class="label">Balance Neto</div>
+        </div>
+      </div>
+
+      <div class="section-grid" style="margin-bottom:20px;">
+        <div class="form-section" style="margin-bottom:0;">
+          <div class="form-title" style="font-size:15px;">Arqueo de Caja</div>
+          <div class="form-subtitle">Compare el dinero registrado con el real</div>
+          <div class="field" style="margin-bottom:12px;">
+            <label>Efectivo Real en Caja (S/)</label>
+            <input type="number" id="arqueo-real" placeholder="0.00" oninput="calcularArqueo()">
+          </div>
+          <div style="background:var(--gray-50);border-radius:8px;padding:12px;">
+            <div class="stat-row"><span class="label">Efectivo esperado</span><span class="value" id="arq-esperado">S/ 0.00</span></div>
+            <div class="stat-row"><span class="label">Efectivo real</span><span class="value" id="arq-real">S/ 0.00</span></div>
+            <div class="stat-row"><span class="label">Diferencia</span><span class="value" id="arq-dif" style="color:var(--green);">S/ 0.00</span></div>
+          </div>
+          <div id="arq-alerta" style="margin-top:10px;"></div>
+        </div>
+        <div class="form-section" style="margin-bottom:0;">
+          <div class="form-title" style="font-size:15px;">Ingresos por Método</div>
+          <div id="metodo-breakdown" style="margin-top:8px;"></div>
+        </div>
+      </div>
+
+      <div class="data-toolbar">
+        <div class="topbar-title" style="font-size:15px;flex:1;">Movimientos del Día</div>
+        <select id="filtro-tipo-caja" onchange="renderCaja()" style="padding:7px 10px;border:1.5px solid var(--gray-200);border-radius:7px;font-size:12px;font-family:'DM Sans',sans-serif;">
+          <option value="todos">Todos</option>
+          <option value="ingreso">Solo Ingresos</option>
+          <option value="egreso">Solo Egresos</option>
+        </select>
+      </div>
+      <div class="caja-list" id="caja-list"></div>
+    </div>
+
+    <!-- ===== CLIENTES ===== -->
+    <div class="view" id="view-clientes">
+      <div class="data-toolbar">
+        <div class="search-box"><input type="text" id="search-clientes" placeholder="Buscar cliente..." oninput="renderClientes()"></div>
+        <button class="topbar-btn btn-navy" onclick="openModal('modal-cliente')">+ Nuevo Cliente</button>
+      </div>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>#</th><th>Nombre</th><th>Teléfono</th><th>Visitas</th><th>Último Servicio</th><th>Total Gastado</th><th>Acciones</th></tr></thead>
+          <tbody id="tbody-clientes">
+            <tr><td colspan="7"><div class="empty-state"><div class="es-icon">👤</div><p>No hay clientes registrados</p></div></td></tr>
+          </tbody>
+        </table>
+        <div class="pagination"><span style="font-size:11px;color:var(--gray-400);flex:1;">Mostrando <span id="cli-count">0</span> clientes</span></div>
+      </div>
+    </div>
+
+    <!-- ===== SERVICIOS ===== -->
+    <div class="view" id="view-servicios">
+      <div class="tab-bar">
+        <div class="tab active" onclick="switchServTab('catalogo',this)">Catálogo</div>
+        <div class="tab" onclick="switchServTab('productos',this)">Productos</div>
+        <div class="tab" onclick="switchServTab('paquetes',this)">Paquetes</div>
+      </div>
+
+      <div id="st-catalogo">
+        <div class="data-toolbar">
+          <div class="search-box"><input type="text" id="search-servicios" placeholder="Buscar servicio..." oninput="renderServicios()"></div>
+          <button class="topbar-btn btn-navy" onclick="openModal('modal-servicio')">+ Nuevo Servicio</button>
+        </div>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Duración</th><th>% Comisión</th><th>Acciones</th></tr></thead>
+            <tbody id="tbody-servicios"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="st-productos" style="display:none;">
+        <div class="data-toolbar">
+          <div class="search-box"><input type="text" placeholder="Buscar producto..."></div>
+          <button class="topbar-btn btn-navy" onclick="openModal('modal-producto')">+ Nuevo Producto</button>
+        </div>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Producto</th><th>Categoría</th><th>Precio Venta</th><th>Stock</th><th>Acciones</th></tr></thead>
+            <tbody id="tbody-productos"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="st-paquetes" style="display:none;">
+        <div class="data-toolbar">
+          <button class="topbar-btn btn-navy" onclick="openModal('modal-paquete')">+ Nuevo Paquete</button>
+        </div>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Paquete</th><th>Servicios incluidos</th><th>Precio</th><th>Descuento</th><th>Acciones</th></tr></thead>
+            <tbody id="tbody-paquetes"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== EMPLEADOS ===== -->
+    <div class="view" id="view-empleados">
+      <div class="data-toolbar">
+        <div class="topbar-title" style="font-size:15px;flex:1;">Equipo de Trabajo</div>
+        <button class="topbar-btn btn-navy" onclick="openModal('modal-empleado')">+ Nuevo Empleado</button>
+      </div>
+      <div id="empleados-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;"></div>
+    </div>
+
+    <!-- ===== REPORTES ===== -->
+    <div class="view" id="view-reportes">
+      <div class="data-toolbar" style="margin-bottom:20px;">
+        <div class="field" style="flex:1;">
+          <label>Período</label>
+          <select id="rep-periodo" onchange="renderReportes()">
+            <option value="hoy">Hoy</option>
+            <option value="semana">Esta semana</option>
+            <option value="mes" selected>Este mes</option>
+            <option value="todo">Todo el tiempo</option>
+          </select>
+        </div>
+        <button class="topbar-btn btn-outline" onclick="exportarCSV()">📥 Exportar CSV</button>
+        <button class="topbar-btn btn-outline" onclick="imprimirReporte()">🖨️ Imprimir</button>
+      </div>
+
+      <div class="report-grid">
+        <div class="report-card">
+          <div class="report-card-header"><div class="report-card-title">💰 Resumen Financiero</div></div>
+          <div class="report-card-body" id="rep-financiero"></div>
+        </div>
+        <div class="report-card">
+          <div class="report-card-header"><div class="report-card-title">💳 Por Método de Pago</div></div>
+          <div class="report-card-body" id="rep-metodos"></div>
+        </div>
+        <div class="report-card">
+          <div class="report-card-header"><div class="report-card-title">✂️ Por Tipo de Servicio</div></div>
+          <div class="report-card-body" id="rep-servicios"></div>
+        </div>
+        <div class="report-card">
+          <div class="report-card-header"><div class="report-card-title">👥 Por Empleado</div></div>
+          <div class="report-card-body" id="rep-empleados"></div>
+        </div>
+      </div>
+
+      <div class="report-card" style="margin-bottom:20px;">
+        <div class="report-card-header"><div class="report-card-title">📋 Detalle de Transacciones</div></div>
+        <div class="report-card-body" style="padding:0;">
+          <div style="overflow-x:auto;">
+            <table class="data-table" id="rep-tabla">
+              <thead><tr><th>Fecha</th><th>Tipo</th><th>Cliente</th><th>Servicio</th><th>Empleado</th><th>Monto</th><th>Pago</th></tr></thead>
+              <tbody id="rep-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CONFIGURACIÓN ===== -->
+    <div class="view" id="view-config">
+      <div class="tab-bar">
+        <div class="tab active" onclick="switchConfigTab('negocio',this)">Negocio</div>
+        <div class="tab" onclick="switchConfigTab('usuarios',this)">Usuarios</div>
+        <div class="tab" onclick="switchConfigTab('datos',this)">Base de Datos</div>
+      </div>
+
+      <div id="cfg-negocio">
+        <div class="form-section">
+          <div class="form-title">Información del Negocio</div>
+          <div class="form-grid">
+            <div class="field"><label>Nombre del Negocio</label><input type="text" id="cfg-nombre" value="Origen Centro Capilar y Estético"></div>
+            <div class="field"><label>RUC / DNI</label><input type="text" id="cfg-ruc" placeholder="20..."></div>
+            <div class="field"><label>Dirección</label><input type="text" id="cfg-dir" placeholder="Av. ..."></div>
+            <div class="field"><label>Teléfono</label><input type="text" id="cfg-tel" placeholder="+51 ..."></div>
+            <div class="field"><label>% Comisión por Defecto</label><input type="number" id="cfg-comision-def" value="20" min="0" max="100"></div>
+            <div class="field"><label>Moneda</label><select id="cfg-moneda"><option value="PEN">S/ Soles (PEN)</option><option value="USD">$ Dólares (USD)</option></select></div>
+          </div>
+          <div class="form-actions"><button class="topbar-btn btn-primary" onclick="showToast('Configuración guardada ✓')">Guardar Cambios</button></div>
+        </div>
+      </div>
+
+      <div id="cfg-usuarios" style="display:none;">
+        <div class="data-toolbar">
+          <div class="topbar-title" style="font-size:15px;flex:1;">Usuarios del Sistema</div>
+          <button class="topbar-btn btn-navy" onclick="openModal('modal-usuario')">+ Nuevo Usuario</button>
+        </div>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Usuario</th><th>Nombre</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody id="tbody-usuarios"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="cfg-datos" style="display:none;">
+        <div class="form-section">
+          <div class="form-title">Gestión de Datos</div>
+          <div class="form-subtitle">Exporta o importa los datos del sistema</div>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <button class="topbar-btn btn-outline" style="width:100%;justify-content:center;" onclick="exportarTodo()">📥 Exportar todos los datos (JSON)</button>
+            <button class="topbar-btn btn-outline" style="width:100%;justify-content:center;" onclick="document.getElementById('import-json').click()">📤 Importar datos (JSON)</button>
+            <input type="file" id="import-json" accept=".json" style="display:none;" onchange="importarDatos(this)">
+            <div class="divider"></div>
+            <button class="topbar-btn" style="background:#fee2e2;color:var(--red);width:100%;justify-content:center;border:1.5px solid #fecaca;" onclick="confirmarReset()">🗑️ Borrar todos los datos</button>
+          </div>
+          <div style="margin-top:20px;">
+            <div class="form-title" style="font-size:14px;margin-bottom:8px;">Estructura de Base de Datos</div>
+            <pre style="background:var(--gray-50);border-radius:8px;padding:16px;font-size:11px;color:var(--gray-600);overflow-x:auto;border:1px solid var(--gray-200);">
+TABLAS:
+├── clientes       { id, nombre, telefono, email, obs, fecha_reg }
+├── empleados      { id, nombre, cargo, usuario, comision_pct, activo }
+├── servicios      { id, nombre, categoria, precio, duracion, comision_pct }
+├── productos      { id, nombre, categoria, precio_venta, stock }
+├── paquetes       { id, nombre, servicios[], precio, descuento }
+├── ingresos       { id, fecha, cliente_id, empleado_id, tipo, 
+│                    servicio_id, monto, descuento, metodo_pago, 
+│                    referencia, comision, obs }
+├── egresos        { id, fecha, categoria, descripcion, monto, 
+│                    proveedor, comprobante, obs }
+└── usuarios       { id, usuario, nombre, rol, activo }</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- MODALES -->
+<div class="modal-overlay" id="modal-cliente">
+  <div class="modal">
+    <div class="modal-title">Nuevo Cliente</div>
+    <div class="modal-sub">Registrar cliente en el sistema</div>
+    <div class="form-grid" style="gap:12px;">
+      <div class="field form-full"><label>Nombre Completo <span class="required">*</span></label><input type="text" id="cli-nombre" placeholder="Nombre y apellidos"></div>
+      <div class="field"><label>Teléfono</label><input type="text" id="cli-tel" placeholder="+51 9..."></div>
+      <div class="field"><label>Email</label><input type="email" id="cli-email" placeholder="correo@..."></div>
+      <div class="field form-full"><label>Observaciones / Ficha</label><textarea id="cli-obs" placeholder="Tipo de cabello, alergias, preferencias..." style="min-height:60px;"></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="topbar-btn btn-outline" onclick="closeModal('modal-cliente')">Cancelar</button>
+      <button class="topbar-btn btn-navy" onclick="guardarCliente()">Guardar Cliente</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-servicio">
+  <div class="modal">
+    <div class="modal-title">Nuevo Servicio</div>
+    <div class="modal-sub">Agregar al catálogo de servicios</div>
+    <div class="form-grid" style="gap:12px;">
+      <div class="field form-full"><label>Nombre del Servicio <span class="required">*</span></label><input type="text" id="srv-nombre" placeholder="Ej: Alisado Permanente"></div>
+      <div class="field"><label>Categoría</label>
+        <select id="srv-cat">
+          <option value="alisado">Alisados</option><option value="botox">Botox Capilar</option>
+          <option value="tratamiento">Tratamientos</option><option value="corte">Cortes</option>
+          <option value="color">Color / Tinte</option><option value="keratina">Keratina</option>
+          <option value="prp">PRP Capilar</option><option value="trasplante">Trasplante</option>
+          <option value="facial">Facial</option><option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="field"><label>Precio (S/) <span class="required">*</span></label><input type="number" id="srv-precio" placeholder="0.00" min="0" step="0.10"></div>
+      <div class="field"><label>Duración (min)</label><input type="number" id="srv-dur" placeholder="60" min="0"></div>
+      <div class="field"><label>% Comisión</label><input type="number" id="srv-comision" placeholder="20" min="0" max="100"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="topbar-btn btn-outline" onclick="closeModal('modal-servicio')">Cancelar</button>
+      <button class="topbar-btn btn-navy" onclick="guardarServicio()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-producto">
+  <div class="modal">
+    <div class="modal-title">Nuevo Producto</div>
+    <div class="form-grid" style="gap:12px;">
+      <div class="field form-full"><label>Nombre <span class="required">*</span></label><input type="text" id="prod-nombre" placeholder="Ej: Shampoo Reparador 400ml"></div>
+      <div class="field"><label>Categoría</label><select id="prod-cat"><option>Shampoo</option><option>Acondicionador</option><option>Mascarilla</option><option>Tratamiento</option><option>Otro</option></select></div>
+      <div class="field"><label>Precio Venta (S/)</label><input type="number" id="prod-precio" placeholder="0.00" min="0" step="0.10"></div>
+      <div class="field"><label>Stock Inicial</label><input type="number" id="prod-stock" placeholder="0" min="0"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="topbar-btn btn-outline" onclick="closeModal('modal-producto')">Cancelar</button>
+      <button class="topbar-btn btn-navy" onclick="guardarProducto()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-empleado">
+  <div class="modal">
+    <div class="modal-title">Nuevo Empleado</div>
+    <div class="form-grid" style="gap:12px;">
+      <div class="field form-full"><label>Nombre Completo <span class="required">*</span></label><input type="text" id="emp-nombre" placeholder="Nombre y apellidos"></div>
+      <div class="field"><label>Cargo</label><input type="text" id="emp-cargo" placeholder="Estilista, Asistente..."></div>
+      <div class="field"><label>% Comisión</label><input type="number" id="emp-comision" placeholder="20" min="0" max="100"></div>
+      <div class="field"><label>Usuario (login)</label><input type="text" id="emp-usuario" placeholder="usuario123"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="topbar-btn btn-outline" onclick="closeModal('modal-empleado')">Cancelar</button>
+      <button class="topbar-btn btn-navy" onclick="guardarEmpleado()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-paquete">
+  <div class="modal">
+    <div class="modal-title">Nuevo Paquete</div>
+    <div class="form-grid" style="gap:12px;">
+      <div class="field form-full"><label>Nombre del Paquete <span class="required">*</span></label><input type="text" id="pak-nombre" placeholder="Ej: Pack Renovación Total"></div>
+      <div class="field"><label>Precio Total (S/)</label><input type="number" id="pak-precio" placeholder="0.00" min="0" step="0.10"></div>
+      <div class="field"><label>Descuento (S/)</label><input type="number" id="pak-desc" placeholder="0.00" min="0" step="0.10"></div>
+      <div class="field form-full"><label>Descripción</label><textarea id="pak-obs" placeholder="Servicios incluidos en el paquete..." style="min-height:60px;"></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="topbar-btn btn-outline" onclick="closeModal('modal-paquete')">Cancelar</button>
+      <button class="topbar-btn btn-navy" onclick="guardarPaquete()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-usuario">
+  <div class="modal">
+    <div class="modal-title">Nuevo Usuario</div>
+    <div class="form-grid" style="gap:12px;">
+      <div class="field form-full"><label>Nombre <span class="required">*</span></label><input type="text" id="usr-nombre" placeholder="Nombre completo"></div>
+      <div class="field"><label>Usuario <span class="required">*</span></label><input type="text" id="usr-user" placeholder="login"></div>
+      <div class="field"><label>Contraseña</label><input type="password" id="usr-pass" placeholder="••••••"></div>
+      <div class="field"><label>Rol</label><select id="usr-rol"><option value="admin">Administrador</option><option value="empleado">Empleado</option></select></div>
+    </div>
+    <div class="modal-actions">
+      <button class="topbar-btn btn-outline" onclick="closeModal('modal-usuario')">Cancelar</button>
+      <button class="topbar-btn btn-navy" onclick="guardarUsuario()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-historial">
+  <div class="modal" style="max-width:600px;">
+    <div class="modal-title" id="hist-title">Historial del Cliente</div>
+    <div class="modal-sub" id="hist-sub"></div>
+    <table class="mini-table" id="hist-tabla">
+      <thead><tr><th>Fecha</th><th>Servicio</th><th>Empleado</th><th>Monto</th></tr></thead>
+      <tbody id="hist-tbody"></tbody>
+    </table>
+    <div class="modal-actions"><button class="topbar-btn btn-outline" onclick="closeModal('modal-historial')">Cerrar</button></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ========== DATA LAYER ==========
+const DB_KEY = 'origen_db';
+
+function loadDB() {
+  try { return JSON.parse(localStorage.getItem(DB_KEY)) || getDefaultDB(); }
+  catch(e) { return getDefaultDB(); }
+}
+
+function getDefaultDB() {
+  return {
+    empleados: [
+      { id: 1, nombre: 'Sandra Meza Hinojosa', cargo: 'Médico Tratante', usuario: 'sandra', comision_pct: 30, activo: true },
+      { id: 2, nombre: 'Elena Quispe', cargo: 'Estilista', usuario: 'elena', comision_pct: 25, activo: true },
+      { id: 3, nombre: 'Darla Gutierrez', cargo: 'Asistente', usuario: 'darla', comision_pct: 20, activo: true },
+    ],
+    servicios: [
+      { id: 1, nombre: 'Alisado Permanente', categoria: 'alisado', precio: 250, duracion: 120, comision_pct: 25 },
+      { id: 2, nombre: 'Botox Capilar', categoria: 'botox', precio: 180, duracion: 90, comision_pct: 25 },
+      { id: 3, nombre: 'Tratamiento Hidratación', categoria: 'tratamiento', precio: 80, duracion: 60, comision_pct: 20 },
+      { id: 4, nombre: 'PRP Capilar', categoria: 'prp', precio: 350, duracion: 90, comision_pct: 30 },
+      { id: 5, nombre: 'Keratina Express', categoria: 'keratina', precio: 150, duracion: 90, comision_pct: 25 },
+      { id: 6, nombre: 'Corte + Peinado', categoria: 'corte', precio: 60, duracion: 45, comision_pct: 20 },
+      { id: 7, nombre: 'Consulta Capilar', categoria: 'tratamiento', precio: 50, duracion: 30, comision_pct: 0 },
+    ],
+    productos: [
+      { id: 1, nombre: 'Shampoo Reparador 400ml', categoria: 'Shampoo', precio_venta: 45, stock: 10 },
+      { id: 2, nombre: 'Mascarilla Nutritiva 300g', categoria: 'Mascarilla', precio_venta: 65, stock: 8 },
+    ],
+    paquetes: [
+      { id: 1, nombre: 'Pack Renovación Total', precio: 380, descuento: 50, obs: 'Botox + Hidratación + Corte' },
+    ],
+    clientes: [
+      { id: 1, nombre: 'María García', telefono: '987654321', email: 'maria@email.com', obs: 'Cabello fino, sensible al calor', fecha_reg: '2024-01-15' },
+      { id: 2, nombre: 'Lucía Ramírez', telefono: '976543210', email: '', obs: 'Prefiere productos orgánicos', fecha_reg: '2024-02-10' },
+    ],
+    ingresos: [],
+    egresos: [],
+    usuarios: [
+      { id: 1, usuario: 'admin', nombre: 'Administrador', rol: 'admin', activo: true },
+      { id: 2, usuario: 'sandra', nombre: 'Sandra Meza Hinojosa', rol: 'empleado', activo: true },
+    ],
+    config: { nombre: 'Origen Centro Capilar y Estético', comision_def: 20, moneda: 'PEN' }
+  };
+}
+
+function saveDB(db) {
+  localStorage.setItem(DB_KEY, JSON.stringify(db));
+}
+
+let DB = loadDB();
+
+// ========== NAVIGATION ==========
+const titles = {
+  dashboard: 'Dashboard', ingresos: 'Registrar Ingreso', egresos: 'Registrar Egreso',
+  caja: 'Control de Caja', clientes: 'Clientes', servicios: 'Servicios & Productos',
+  empleados: 'Empleados', reportes: 'Reportes', config: 'Configuración'
+};
+
+function showView(v) {
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('view-' + v).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(el => {
+    if (el.getAttribute('onclick') && el.getAttribute('onclick').includes("'" + v + "'")) el.classList.add('active');
+  });
+  document.getElementById('page-title').textContent = titles[v] || v;
+  if (document.getElementById('sidebar').classList.contains('open')) toggleSidebar();
+  renderView(v);
+}
+
+function renderView(v) {
+  if (v === 'dashboard') renderDashboard();
+  if (v === 'ingresos') initIngreso();
+  if (v === 'egresos') initEgreso();
+  if (v === 'caja') renderCaja();
+  if (v === 'clientes') renderClientes();
+  if (v === 'servicios') renderServicios();
+  if (v === 'empleados') renderEmpleados();
+  if (v === 'reportes') renderReportes();
+  if (v === 'config') renderConfig();
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ========== DATE ==========
+function setDate() {
+  const now = new Date();
+  document.getElementById('current-date').textContent = now.toLocaleDateString('es-PE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+}
+setDate();
+
+function todayStr() { return new Date().toISOString().split('T')[0]; }
+function nowDT() {
+  const n = new Date();
+  return n.toISOString().slice(0, 16);
+}
+
+// ========== HELPERS ==========
+function fmt(n) { return 'S/ ' + (parseFloat(n) || 0).toFixed(2); }
+function nextId(arr) { return arr.length ? Math.max(...arr.map(x => x.id)) + 1 : 1; }
+
+function showToast(msg, duration = 2800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+// ========== DASHBOARD ==========
+function renderDashboard() {
+  const today = todayStr();
+  const ingHoy = DB.ingresos.filter(x => x.fecha.startsWith(today));
+  const egrHoy = DB.egresos.filter(x => x.fecha === today);
+  const totalIng = ingHoy.reduce((s, x) => s + (x.monto - (x.descuento || 0)), 0);
+  const totalEgr = egrHoy.reduce((s, x) => s + x.monto, 0);
+  const mes = today.slice(0, 7);
+  const ingMes = DB.ingresos.filter(x => x.fecha.startsWith(mes));
+  const egrMes = DB.egresos.filter(x => x.fecha.startsWith(mes));
+  const totalIngMes = ingMes.reduce((s, x) => s + (x.monto - (x.descuento || 0)), 0);
+  const totalEgrMes = egrMes.reduce((s, x) => s + x.monto, 0);
+
+  document.getElementById('kpi-ing-hoy').textContent = fmt(totalIng);
+  document.getElementById('kpi-ing-hoy-n').textContent = ingHoy.length + ' transacciones';
+  document.getElementById('kpi-egr-hoy').textContent = fmt(totalEgr);
+  document.getElementById('kpi-neta').textContent = fmt(totalIng - totalEgr);
+  document.getElementById('kpi-clientes').textContent = DB.clientes.length;
+  document.getElementById('kpi-srv-hoy').textContent = ingHoy.filter(x => x.tipo === 'servicio').length;
+  document.getElementById('rm-ing').textContent = fmt(totalIngMes);
+  document.getElementById('rm-egr').textContent = fmt(totalEgrMes);
+  document.getElementById('rm-net').textContent = fmt(totalIngMes - totalEgrMes);
+  document.getElementById('rm-cli').textContent = [...new Set(ingMes.map(x => x.cliente_id))].length;
+
+  // Últimas transacciones
+  const ult = [...DB.ingresos].sort((a, b) => b.fecha.localeCompare(a.fecha)).slice(0, 6);
+  const utb = document.getElementById('ultimas-tbody');
+  utb.innerHTML = ult.length ? ult.map(x => {
+    const cli = DB.clientes.find(c => c.id == x.cliente_id);
+    const srv = DB.servicios.find(s => s.id == x.servicio_id);
+    const metLabels = { efectivo: '💵 Efectivo', transferencia: '🏦 Transfer', pos: '💳 POS', yape: '📱 Yape', plin: '📲 Plin', otro_pago: '💬 Otro' };
+    return `<tr>
+      <td>${cli ? cli.nombre.split(' ')[0] : '—'}</td>
+      <td>${srv ? srv.nombre : x.servicio_id || '—'}</td>
+      <td class="pos">${fmt(x.monto - (x.descuento || 0))}</td>
+      <td><span class="badge badge-navy">${metLabels[x.metodo_pago] || x.metodo_pago}</span></td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="4"><div class="empty-state"><div class="es-icon">📋</div><p>Sin registros aún</p></div></td></tr>`;
+
+  // Métodos de pago chart
+  const metodos = ['efectivo', 'transferencia', 'pos', 'yape', 'plin', 'otro_pago'];
+  const metLabels2 = { efectivo: 'Efectivo', transferencia: 'Transfer', pos: 'POS', yape: 'Yape', plin: 'Plin', otro_pago: 'Otro' };
+  const metColors = { efectivo: '#16a34a', transferencia: '#1b3a60', pos: '#7c3aed', yape: '#dc2626', plin: '#0ea5e9', otro_pago: '#a07838' };
+  const metTotales = {};
+  metodos.forEach(m => { metTotales[m] = ingHoy.filter(x => x.metodo_pago === m).reduce((s, x) => s + (x.monto - (x.descuento || 0)), 0); });
+  const maxMet = Math.max(...Object.values(metTotales), 1);
+  document.getElementById('chart-metodo').innerHTML = metodos.map(m =>
+    `<div class="bar-wrap" title="${fmt(metTotales[m])}">
+      <div class="bar-fill" style="height:${Math.max(4, (metTotales[m] / maxMet) * 84)}px;background:${metColors[m]};"></div>
+      <div class="bar-label">${metLabels2[m]}</div>
+    </div>`).join('');
+
+  // Personal
+  const ptb = document.getElementById('personal-tbody');
+  const empData = DB.empleados.filter(e => e.activo).map(e => {
+    const srvs = ingHoy.filter(x => x.empleado_id == e.id);
+    const total = srvs.reduce((s, x) => s + (x.monto - (x.descuento || 0)), 0);
+    const comision = srvs.reduce((s, x) => s + (x.comision || 0), 0);
+    return { nombre: e.nombre.split(' ')[0], servicios: srvs.length, total, comision };
+  });
+  ptb.innerHTML = empData.length ? empData.map(e => `<tr>
+    <td>${e.nombre}</td><td>${e.servicios}</td>
+    <td class="pos">${fmt(e.total)}</td>
+    <td>${fmt(e.comision)}</td></tr>`).join('') : `<tr><td colspan="4"><div class="empty-state" style="padding:20px;"><p>Sin actividad hoy</p></div></td></tr>`;
+
+  // Top servicios
+  const srvCount = {};
+  DB.ingresos.forEach(x => { if (x.servicio_id) { srvCount[x.servicio_id] = srvCount[x.servicio_id] || { n: 0, t: 0 }; srvCount[x.servicio_id].n++; srvCount[x.servicio_id].t += x.monto - (x.descuento || 0); } });
+  const topSrv = Object.entries(srvCount).sort((a, b) => b[1].n - a[1].n).slice(0, 5);
+  const tstb = document.getElementById('top-srv-tbody');
+  tstb.innerHTML = topSrv.length ? topSrv.map(([id, d]) => {
+    const s = DB.servicios.find(x => x.id == id);
+    return `<tr><td>${s ? s.nombre : id}</td><td><span class="badge badge-navy">${d.n}x</span></td><td class="pos">${fmt(d.t)}</td></tr>`;
+  }).join('') : `<tr><td colspan="3"><div class="empty-state" style="padding:20px;"><p>Sin datos</p></div></td></tr>`;
+}
+
+// ========== INGRESO ==========
+let selectedPago = '';
+
+function initIngreso() {
+  document.getElementById('ing-fecha').value = nowDT();
+  populateSelect('ing-empleado', DB.empleados.filter(e => e.activo).map(e => ({ value: e.id, label: e.nombre })));
+  populateSelect('ing-cliente', [{ value: 'nuevo', label: '+ Nuevo cliente' }, ...DB.clientes.map(c => ({ value: c.id, label: c.nombre }))]);
+  selectedPago = '';
+  document.querySelectorAll('.payment-opt').forEach(el => el.classList.remove('selected'));
+  document.getElementById('pago-referencia-wrap').style.display = 'none';
+  document.getElementById('ing-comision-pct').value = DB.config ? DB.config.comision_def : 20;
+  calcularComision();
+}
+
+function populateSelect(id, items) {
+  const sel = document.getElementById(id);
+  const cur = sel.value;
+  const firstOpt = sel.options[0];
+  sel.innerHTML = '';
+  if (firstOpt) sel.appendChild(firstOpt);
+  items.forEach(i => {
+    const o = document.createElement('option');
+    o.value = i.value; o.textContent = i.label;
+    sel.appendChild(o);
+  });
+  sel.value = cur;
+}
+
+function updateTipo() {
+  const tipo = document.getElementById('ing-tipo').value;
+  const sel = document.getElementById('ing-servicio');
+  sel.innerHTML = '<option value="">Seleccionar...</option>';
+  if (tipo === 'servicio') {
+    DB.servicios.forEach(s => { const o = document.createElement('option'); o.value = s.id; o.textContent = s.nombre + ' — ' + fmt(s.precio); sel.appendChild(o); });
+  } else if (tipo === 'producto') {
+    DB.productos.forEach(p => { const o = document.createElement('option'); o.value = p.id; o.textContent = p.nombre + ' — ' + fmt(p.precio_venta); sel.appendChild(o); });
+  } else if (tipo === 'paquete') {
+    DB.paquetes.forEach(p => { const o = document.createElement('option'); o.value = p.id; o.textContent = p.nombre + ' — ' + fmt(p.precio); sel.appendChild(o); });
+  } else {
+    const o = document.createElement('option'); o.value = 'otro'; o.textContent = tipo || 'Otro'; sel.appendChild(o);
+  }
+  // Auto-fill price
+  sel.onchange = () => {
+    const id = sel.value;
+    let precio = 0;
+    if (tipo === 'servicio') { const s = DB.servicios.find(x => x.id == id); if (s) { precio = s.precio; document.getElementById('ing-comision-pct').value = s.comision_pct; } }
+    if (tipo === 'producto') { const p = DB.productos.find(x => x.id == id); if (p) precio = p.precio_venta; }
+    if (tipo === 'paquete') { const pk = DB.paquetes.find(x => x.id == id); if (pk) { precio = pk.precio; document.getElementById('ing-descuento').value = pk.descuento || 0; } }
+    if (precio) document.getElementById('ing-monto').value = precio;
+    calcularComision();
+  };
+}
+
+function selectPago(p) {
+  selectedPago = p;
+  document.querySelectorAll('.payment-opt').forEach(el => el.classList.remove('selected'));
+  document.querySelector(`[data-pay="${p}"]`).classList.add('selected');
+  const needRef = ['transferencia', 'pos', 'yape', 'plin'].includes(p);
+  document.getElementById('pago-referencia-wrap').style.display = needRef ? 'block' : 'none';
+}
+
+function calcularComision() {
+  const monto = parseFloat(document.getElementById('ing-monto').value) || 0;
+  const desc = parseFloat(document.getElementById('ing-descuento').value) || 0;
+  const pct = parseFloat(document.getElementById('ing-comision-pct').value) || 0;
+  const net = monto - desc;
+  const com = net * pct / 100;
+  document.getElementById('comision-monto').textContent = fmt(com);
+  document.getElementById('total-display').textContent = fmt(net);
+}
+
+function guardarIngreso() {
+  const fecha = document.getElementById('ing-fecha').value;
+  const empleado_id = document.getElementById('ing-empleado').value;
+  const cliente_id = document.getElementById('ing-cliente').value;
+  const tipo = document.getElementById('ing-tipo').value;
+  const servicio_id = document.getElementById('ing-servicio').value;
+  const monto = parseFloat(document.getElementById('ing-monto').value) || 0;
+  if (!fecha || !empleado_id || !cliente_id || !tipo || !monto || !selectedPago) {
+    showToast('⚠️ Complete todos los campos requeridos y seleccione método de pago'); return;
+  }
+  if (cliente_id === 'nuevo') { openModal('modal-cliente'); return; }
+  const descuento = parseFloat(document.getElementById('ing-descuento').value) || 0;
+  const comision_pct = parseFloat(document.getElementById('ing-comision-pct').value) || 0;
+  const comision = (monto - descuento) * comision_pct / 100;
+  const ingreso = {
+    id: nextId(DB.ingresos), fecha, empleado_id: parseInt(empleado_id),
+    cliente_id: parseInt(cliente_id), tipo, servicio_id,
+    monto, descuento, metodo_pago: selectedPago,
+    referencia: document.getElementById('ing-referencia').value,
+    comision: parseFloat(comision.toFixed(2)),
+    obs: document.getElementById('ing-obs').value
+  };
+  DB.ingresos.push(ingreso);
+  saveDB(DB);
+  showToast('✓ Ingreso registrado — ' + fmt(monto - descuento));
+  clearIngreso();
+  renderDashboard();
+}
+
+function clearIngreso() { initIngreso(); document.getElementById('ing-monto').value = ''; document.getElementById('ing-descuento').value = ''; document.getElementById('ing-obs').value = ''; calcularComision(); }
+
+function initEgreso() {
+  document.getElementById('egr-fecha').value = todayStr();
+}
+
+function guardarEgreso() {
+  const fecha = document.getElementById('egr-fecha').value;
+  const categoria = document.getElementById('egr-categoria').value;
+  const descripcion = document.getElementById('egr-desc').value;
+  const monto = parseFloat(document.getElementById('egr-monto').value) || 0;
+  if (!fecha || !categoria || !descripcion || !monto) { showToast('⚠️ Complete los campos requeridos'); return; }
+  DB.egresos.push({
+    id: nextId(DB.egresos), fecha, categoria, descripcion, monto,
+    proveedor: document.getElementById('egr-proveedor').value,
+    comprobante: document.getElementById('egr-comprobante').value,
+    obs: document.getElementById('egr-obs').value
+  });
+  saveDB(DB);
+  showToast('✓ Egreso registrado — ' + fmt(monto));
+  clearEgreso();
+}
+function clearEgreso() { initEgreso(); ['egr-categoria', 'egr-desc', 'egr-proveedor', 'egr-comprobante', 'egr-obs'].forEach(id => { const el = document.getElementById(id); if (el.tagName === 'SELECT') el.selectedIndex = 0; else el.value = ''; }); document.getElementById('egr-monto').value = ''; }
+
+// ========== CAJA ==========
+function renderCaja() {
+  const today = todayStr();
+  const ingHoy = DB.ingresos.filter(x => x.fecha.startsWith(today));
+  const egrHoy = DB.egresos.filter(x => x.fecha === today);
+  const totalIng = ingHoy.reduce((s, x) => s + (x.monto - (x.descuento || 0)), 0);
+  const totalEgr = egrHoy.reduce((s, x) => s + x.monto, 0);
+  document.getElementById('caja-ing-total').textContent = fmt(totalIng);
+  document.getElementById('caja-egr-total').textContent = fmt(totalEgr);
+  document.getElementById('caja-net-total').textContent = fmt(totalIng - totalEgr);
+
+  // Arqueo
+  const efectivoIng = ingHoy.filter(x => x.metodo_pago === 'efectivo').reduce((s, x) => s + (x.monto - (x.descuento || 0)), 0);
+  const efectivoEgr = egrHoy.reduce((s, x) => s + x.monto, 0);
+  const esperado = efectivoIng - efectivoEgr;
+  document.getElementById('arq-esperado').textContent = fmt(esperado);
+  calcularArqueo();
+
+  // Métodos breakdown
+  const metodos = ['efectivo', 'transferencia', 'pos', 'yape', 'plin', 'otro_pago'];
+  const metLabels = { efectivo: '💵 Efectivo', transferencia: '🏦 Transferencia', pos: '💳 POS', yape: '📱 Yape', plin: '📲 Plin', otro_pago: '💬 Otro' };
+  const mb = document.getElementById('metodo-breakdown');
+  mb.innerHTML = metodos.map(m => {
+    const total = ingHoy.filter(x => x.metodo_pago === m).reduce((s, x) => s + (x.monto - (x.descuento || 0)), 0);
+    const pct = totalIng > 0 ? (total / totalIng * 100) : 0;
+    return `<div style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>${metLabels[m]}</span><span class="pos">${fmt(total)}</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct.toFixed(1)}%;background:var(--navy);"></div></div>
+    </div>`;
+  }).join('');
+
+  // Lista movimientos
+  const filtro = document.getElementById('filtro-tipo-caja').value;
+  const list = document.getElementById('caja-list');
+  const items = [
+    ...ingHoy.map(x => { const cli = DB.clientes.find(c => c.id == x.cliente_id); const srv = DB.servicios.find(s => s.id == x.servicio_id); return { tipo: 'ingreso', hora: x.fecha.slice(11, 16), titulo: srv ? srv.nombre : (x.tipo || 'Ingreso'), sub: (cli ? cli.nombre : 'Cliente') + ' — ' + (x.metodo_pago || ''), monto: x.monto - (x.descuento || 0) }; }),
+    ...egrHoy.map(x => ({ tipo: 'egreso', hora: x.fecha, titulo: x.descripcion, sub: x.categoria + (x.proveedor ? ' — ' + x.proveedor : ''), monto: x.monto }))
+  ].filter(x => filtro === 'todos' || x.tipo === filtro).sort((a, b) => b.hora.localeCompare(a.hora));
+  list.innerHTML = items.length ? items.map(x => `
+    <div class="caja-item ${x.tipo}">
+      <div class="caja-item-info">
+        <strong>${x.titulo}</strong>
+        <span>${x.hora} · ${x.sub}</span>
+      </div>
+      <div class="caja-item-amount">${x.tipo === 'ingreso' ? '+' : '-'}${fmt(x.monto)}</div>
+    </div>`).join('') : `<div class="empty-state" style="padding:40px;background:white;border-radius:10px;"><div class="es-icon">📭</div><p>Sin movimientos hoy</p></div>`;
+}
+
+function calcularArqueo() {
+  const today = todayStr();
+  const ingHoy = DB.ingresos.filter(x => x.fecha.startsWith(today));
+  const egrHoy = DB.egresos.filter(x => x.fecha === today);
+  const efectivoIng = ingHoy.filter(x => x.metodo_pago === 'efectivo').reduce((s, x) => s + (x.monto - (x.descuento || 0)), 0);
+  const efectivoEgr = egrHoy.reduce((s, x) => s + x.monto, 0);
+  const esperado = efectivoIng - efectivoEgr;
+  const realVal = parseFloat(document.getElementById('arqueo-real').value) || 0;
+  const dif = realVal - esperado;
+  document.getElementById('arq-esperado').textContent = fmt(esperado);
+  document.getElementById('arq-real').textContent = fmt(realVal);
+  document.getElementById('arq-dif').textContent = fmt(dif);
+  document.getElementById('arq-dif').style.color = dif === 0 ? 'var(--green)' : dif > 0 ? 'var(--amber)' : 'var(--red)';
+  const al = document.getElementById('arq-alerta');
+  if (realVal > 0) {
+    if (dif === 0) al.innerHTML = `<div class="alert success">✓ Caja cuadra perfectamente.</div>`;
+    else if (dif > 0) al.innerHTML = `<div class="alert warning">⚠️ Hay ${fmt(dif)} de más. Verificar ingresos no registrados.</div>`;
+    else al.innerHTML = `<div class="alert error">⚠️ Falta ${fmt(Math.abs(dif))}. Verificar egresos o errores de registro.</div>`;
+  } else al.innerHTML = '';
+}
+
+// ========== CLIENTES ==========
+function renderClientes() {
+  const q = (document.getElementById('search-clientes').value || '').toLowerCase();
+  const filtered = DB.clientes.filter(c => c.nombre.toLowerCase().includes(q) || (c.telefono || '').includes(q));
+  document.getElementById('cli-count').textContent = filtered.length;
+  const tb = document.getElementById('tbody-clientes');
+  tb.innerHTML = filtered.length ? filtered.map((c, i) => {
+    const visitas = DB.ingresos.filter(x => x.cliente_id == c.id).length;
+    const totalGastado = DB.ingresos.filter(x => x.cliente_id == c.id).reduce((s, x) => s + (x.monto - (x.descuento || 0)), 0);
+    const ultimo = DB.ingresos.filter(x => x.cliente_id == c.id).sort((a, b) => b.fecha.localeCompare(a.fecha))[0];
+    return `<tr>
+      <td>${i + 1}</td>
+      <td><strong>${c.nombre}</strong></td>
+      <td>${c.telefono || '—'}</td>
+      <td><span class="badge badge-navy">${visitas}</span></td>
+      <td>${ultimo ? ultimo.fecha.slice(0, 10) : '—'}</td>
+      <td class="pos">${fmt(totalGastado)}</td>
+      <td class="action-btns">
+        <button class="action-btn" onclick="verHistorial(${c.id})">Historial</button>
+        <button class="action-btn del" onclick="eliminarCliente(${c.id})">✕</button>
+      </td></tr>`;
+  }).join('') : `<tr><td colspan="7"><div class="empty-state"><div class="es-icon">👤</div><p>No se encontraron clientes</p></div></td></tr>`;
+}
+
+function guardarCliente() {
+  const nombre = document.getElementById('cli-nombre').value.trim();
+  if (!nombre) { showToast('⚠️ El nombre es requerido'); return; }
+  DB.clientes.push({
+    id: nextId(DB.clientes), nombre,
+    telefono: document.getElementById('cli-tel').value,
+    email: document.getElementById('cli-email').value,
+    obs: document.getElementById('cli-obs').value,
+    fecha_reg: todayStr()
+  });
+  saveDB(DB);
+  closeModal('modal-cliente');
+  showToast('✓ Cliente registrado: ' + nombre);
+  ['cli-nombre', 'cli-tel', 'cli-email', 'cli-obs'].forEach(id => document.getElementById(id).value = '');
+  renderClientes();
+  if (document.getElementById('view-ingresos').classList.contains('active')) {
+    populateSelect('ing-cliente', [{ value: 'nuevo', label: '+ Nuevo cliente' }, ...DB.clientes.map(c => ({ value: c.id, label: c.nombre }))]);
+  }
+}
+
+function eliminarCliente(id) {
+  if (!confirm('¿Eliminar este cliente?')) return;
+  DB.clientes = DB.clientes.filter(c => c.id != id);
+  saveDB(DB); renderClientes(); showToast('Cliente eliminado');
+}
+
+function verHistorial(id) {
+  const cli = DB.clientes.find(c => c.id == id);
+  document.getElementById('hist-title').textContent = 'Historial: ' + cli.nombre;
+  document.getElementById('hist-sub').textContent = (cli.obs ? 'Ficha: ' + cli.obs : '') + ' · Tel: ' + (cli.telefono || '—');
+  const visitas = DB.ingresos.filter(x => x.cliente_id == id).sort((a, b) => b.fecha.localeCompare(a.fecha));
+  const tb = document.getElementById('hist-tbody');
+  tb.innerHTML = visitas.length ? visitas.map(x => {
+    const srv = DB.servicios.find(s => s.id == x.servicio_id);
+    const emp = DB.empleados.find(e => e.id == x.empleado_id);
+    return `<tr><td>${x.fecha.slice(0, 10)}</td><td>${srv ? srv.nombre : x.tipo}</td><td>${emp ? emp.nombre.split(' ')[0] : '—'}</td><td class="pos">${fmt(x.monto - (x.descuento || 0))}</td></tr>`;
+  }).join('') : `<tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:20px;">Sin visitas registradas</td></tr>`;
+  openModal('modal-historial');
+}
+
+// ========== SERVICIOS ==========
+function switchServTab(tab, el) {
+  ['catalogo', 'productos', 'paquetes'].forEach(t => document.getElementById('st-' + t).style.display = t === tab ? 'block' : 'none');
+  el.closest('.tab-bar').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function renderServicios() {
+  const q = (document.getElementById('search-servicios').value || '').toLowerCase();
+  const filtered = DB.servicios.filter(s => s.nombre.toLowerCase().includes(q));
+  const tb = document.getElementById('tbody-servicios');
+  tb.innerHTML = filtered.length ? filtered.map(s => `<tr>
+    <td><strong>${s.nombre}</strong></td>
+    <td><span class="badge badge-gold">${s.categoria}</span></td>
+    <td class="pos">${fmt(s.precio)}</td>
+    <td>${s.duracion || '—'} min</td>
+    <td>${s.comision_pct || 0}%</td>
+    <td class="action-btns">
+      <button class="action-btn del" onclick="eliminarServicio(${s.id})">✕</button>
+    </td></tr>`).join('') : `<tr><td colspan="6"><div class="empty-state"><div class="es-icon">✂️</div><p>Sin servicios</p></div></td></tr>`;
+
+  const tprod = document.getElementById('tbody-productos');
+  tprod.innerHTML = DB.productos.length ? DB.productos.map(p => `<tr>
+    <td><strong>${p.nombre}</strong></td>
+    <td>${p.categoria}</td>
+    <td class="pos">${fmt(p.precio_venta)}</td>
+    <td><span class="badge ${p.stock > 3 ? 'badge-green' : 'badge-red'}">${p.stock}</span></td>
+    <td class="action-btns"><button class="action-btn del" onclick="eliminarProducto(${p.id})">✕</button></td></tr>`).join('') : `<tr><td colspan="5"><div class="empty-state"><p>Sin productos</p></div></td></tr>`;
+
+  const tpak = document.getElementById('tbody-paquetes');
+  tpak.innerHTML = DB.paquetes.length ? DB.paquetes.map(p => `<tr>
+    <td><strong>${p.nombre}</strong></td>
+    <td>${p.obs || '—'}</td>
+    <td class="pos">${fmt(p.precio)}</td>
+    <td>${fmt(p.descuento || 0)}</td>
+    <td class="action-btns"><button class="action-btn del" onclick="eliminarPaquete(${p.id})">✕</button></td></tr>`).join('') : `<tr><td colspan="5"><div class="empty-state"><p>Sin paquetes</p></div></td></tr>`;
+}
+
+function guardarServicio() {
+  const nombre = document.getElementById('srv-nombre').value.trim();
+  if (!nombre) { showToast('⚠️ Nombre requerido'); return; }
+  DB.servicios.push({ id: nextId(DB.servicios), nombre, categoria: document.getElementById('srv-cat').value, precio: parseFloat(document.getElementById('srv-precio').value) || 0, duracion: parseInt(document.getElementById('srv-dur').value) || 0, comision_pct: parseInt(document.getElementById('srv-comision').value) || 20 });
+  saveDB(DB); closeModal('modal-servicio'); showToast('✓ Servicio agregado'); renderServicios();
+}
+
+function guardarProducto() {
+  const nombre = document.getElementById('prod-nombre').value.trim();
+  if (!nombre) { showToast('⚠️ Nombre requerido'); return; }
+  DB.productos.push({ id: nextId(DB.productos), nombre, categoria: document.getElementById('prod-cat').value, precio_venta: parseFloat(document.getElementById('prod-precio').value) || 0, stock: parseInt(document.getElementById('prod-stock').value) || 0 });
+  saveDB(DB); closeModal('modal-producto'); showToast('✓ Producto agregado'); renderServicios();
+}
+
+function guardarPaquete() {
+  const nombre = document.getElementById('pak-nombre').value.trim();
+  if (!nombre) { showToast('⚠️ Nombre requerido'); return; }
+  DB.paquetes.push({ id: nextId(DB.paquetes), nombre, precio: parseFloat(document.getElementById('pak-precio').value) || 0, descuento: parseFloat(document.getElementById('pak-desc').value) || 0, obs: document.getElementById('pak-obs').value });
+  saveDB(DB); closeModal('modal-paquete'); showToast('✓ Paquete agregado'); renderServicios();
+}
+
+function eliminarServicio(id) { if (!confirm('¿Eliminar servicio?')) return; DB.servicios = DB.servicios.filter(x => x.id != id); saveDB(DB); renderServicios(); }
+function eliminarProducto(id) { if (!confirm('¿Eliminar producto?')) return; DB.productos = DB.productos.filter(x => x.id != id); saveDB(DB); renderServicios(); }
+function eliminarPaquete(id) { if (!confirm('¿Eliminar paquete?')) return; DB.paquetes = DB.paquetes.filter(x => x.id != id); saveDB(DB); renderServicios(); }
+
+// ========== EMPLEADOS ==========
+function renderEmpleados() {
+  const grid = document.getElementById('empleados-grid');
+  grid.innerHTML = DB.empleados.map(e => {
+    const srvs = DB.ingresos.filter(x => x.empleado_id == e.id);
+    const total = srvs.reduce((s, x) => s + (x.monto - (x.descuento || 0)), 0);
+    const comision = srvs.reduce((s, x) => s + (x.comision || 0), 0);
+    const ini = e.nombre.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    return `<div class="card">
+      <div class="card-body" style="text-align:center;padding:20px;">
+        <div style="width:52px;height:52px;background:linear-gradient(135deg,var(--navy),var(--navy-light));border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:white;">${ini}</div>
+        <div style="font-weight:600;font-size:14px;color:var(--navy-deep);">${e.nombre}</div>
+        <div style="font-size:11px;color:var(--gray-400);margin-bottom:12px;">${e.cargo}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
+          <div style="background:var(--gray-50);border-radius:7px;padding:8px;"><div style="font-size:10px;color:var(--gray-400);">Servicios</div><div style="font-weight:700;color:var(--navy-deep);">${srvs.length}</div></div>
+          <div style="background:var(--gray-50);border-radius:7px;padding:8px;"><div style="font-size:10px;color:var(--gray-400);">Ingresos</div><div style="font-weight:700;color:var(--green);font-size:11px;">${fmt(total)}</div></div>
+          <div style="background:var(--gray-50);border-radius:7px;padding:8px;"><div style="font-size:10px;color:var(--gray-400);">Comisión</div><div style="font-weight:700;color:var(--gold);font-size:11px;">${fmt(comision)}</div></div>
+        </div>
+        <div style="display:flex;gap:6px;justify-content:center;">
+          <span class="badge ${e.activo ? 'badge-green' : 'badge-red'}">${e.activo ? 'Activo' : 'Inactivo'}</span>
+          <span class="badge badge-navy">${e.comision_pct}% comisión</span>
+        </div>
+      </div>
+      <div style="padding:0 16px 14px;display:flex;gap:6px;">
+        <button class="action-btn" style="flex:1;" onclick="toggleEmpleado(${e.id})">${e.activo ? 'Desactivar' : 'Activar'}</button>
+        <button class="action-btn del" onclick="eliminarEmpleado(${e.id})">✕</button>
+      </div>
+    </div>`;
+  }).join('') || `<div class="empty-state" style="grid-column:1/-1;background:white;border-radius:10px;padding:40px;"><div class="es-icon">👥</div><p>No hay empleados registrados</p></div>`;
+}
+
+function guardarEmpleado() {
+  const nombre = document.getElementById('emp-nombre').value.trim();
+  if (!nombre) { showToast('⚠️ Nombre requerido'); return; }
+  DB.empleados.push({ id: nextId(DB.empleados), nombre, cargo: document.getElementById('emp-cargo').value, comision_pct: parseInt(document.getElementById('emp-comision').value) || 20, usuario: document.getElementById('emp-usuario').value, activo: true });
+  saveDB(DB); closeModal('modal-empleado'); showToast('✓ Empleado registrado'); renderEmpleados();
+}
+
+function toggleEmpleado(id) { const e = DB.empleados.find(x => x.id == id); if (e) { e.activo = !e.activo; saveDB(DB); renderEmpleados(); } }
+function eliminarEmpleado(id) { if (!confirm('¿Eliminar empleado?')) return; DB.empleados = DB.empleados.filter(x => x.id != id); saveDB(DB); renderEmpleados(); }
+
+// ========== REPORTES ==========
+function getFiltered() {
+  const p = document.getElementById('rep-periodo').value;
+  const today = todayStr();
+  const mes = today.slice(0, 7);
+  const semana = new Date(); semana.setDate(semana.getDate() - 7);
+  const semStr = semana.toISOString().split('T')[0];
+  const filterIng = DB.ingresos.filter(x => {
+    if (p === 'hoy') return x.fecha.startsWith(today);
+    if (p === 'semana') return x.fecha >= semStr;
+    if (p === 'mes') return x.fecha.startsWith(mes);
+    return true;
+  });
+  const filterEgr = DB.egresos.filter(x => {
+    if (p === 'hoy') return x.fecha === today;
+    if (p === 'semana') return x.fecha >= semStr;
+    if (p === 'mes') return x.fecha.startsWith(mes);
+    return true;
+  });
+  return { ing: filterIng, egr: filterEgr };
+}
+
+function renderReportes() {
+  const { ing, egr } = getFiltered();
+  const totalIng = ing.reduce((s, x) => s + (x.monto - (x.descuento || 0)), 0);
+  const totalEgr = egr.reduce((s, x) => s + x.monto, 0);
+  const totalCom = ing.reduce((s, x) => s + (x.comision || 0), 0);
+
+  document.getElementById('rep-financiero').innerHTML = `
+    <div class="stat-row"><span class="label">Total Ingresos</span><span class="value pos">${fmt(totalIng)}</span></div>
+    <div class="stat-row"><span class="label">Total Egresos</span><span class="value neg">${fmt(totalEgr)}</span></div>
+    <div class="stat-row"><span class="label">Ganancia Neta</span><span class="value" style="color:${totalIng-totalEgr>=0?'var(--green)':'var(--red)'};">${fmt(totalIng - totalEgr)}</span></div>
+    <div class="stat-row"><span class="label">Total Comisiones</span><span class="value">${fmt(totalCom)}</span></div>
+    <div class="stat-row"><span class="label">N° Transacciones</span><span class="value">${ing.length}</span></div>
+    <div class="stat-row"><span class="label">Ticket Promedio</span><span class="value">${ing.length ? fmt(totalIng / ing.length) : 'S/ 0.00'}</span></div>`;
+
+  const metodos = ['efectivo', 'transferencia', 'pos', 'yape', 'plin', 'otro_pago'];
+  const metLabels = { efectivo: '💵 Efectivo', transferencia: '🏦 Transferencia', pos: '💳 POS', yape: '📱 Yape', plin: '📲 Plin', otro_pago: '💬 Otro' };
+  document.getElementById('rep-metodos').innerHTML = metodos.map(m => {
+    const t = ing.filter(x => x.metodo_pago === m).reduce((s, x) => s + (x.monto - (x.descuento || 0)), 0);
+    const n = ing.filter(x => x.metodo_pago === m).length;
+    return `<div class="stat-row"><span class="label">${metLabels[m]}</span><span class="value">${fmt(t)} <small style="color:var(--gray-400);">(${n})</small></span></div>`;
+  }).join('');
+
+  // Por servicio
+  const srvData = {};
+  ing.forEach(x => { const s = DB.servicios.find(sv => sv.id == x.servicio_id); const k = s ? s.nombre : (x.tipo || 'Otro'); srvData[k] = srvData[k] || { n: 0, t: 0 }; srvData[k].n++; srvData[k].t += x.monto - (x.descuento || 0); });
+  document.getElementById('rep-servicios').innerHTML = Object.entries(srvData).sort((a, b) => b[1].t - a[1].t).map(([k, d]) =>
+    `<div class="stat-row"><span class="label">${k} <small style="color:var(--gray-400);">(${d.n}x)</small></span><span class="value pos">${fmt(d.t)}</span></div>`
+  ).join('') || '<div class="empty-state" style="padding:20px;"><p>Sin datos</p></div>';
+
+  // Por empleado
+  document.getElementById('rep-empleados').innerHTML = DB.empleados.map(e => {
+    const srvs = ing.filter(x => x.empleado_id == e.id);
+    const total = srvs.reduce((s, x) => s + (x.monto - (x.descuento || 0)), 0);
+    const com = srvs.reduce((s, x) => s + (x.comision || 0), 0);
+    return `<div class="stat-row"><span class="label">${e.nombre.split(' ')[0]} <small style="color:var(--gray-400);">${srvs.length} serv.</small></span><span class="value"><span class="pos">${fmt(total)}</span> <small>com: ${fmt(com)}</small></span></div>`;
+  }).join('') || '<div class="empty-state" style="padding:20px;"><p>Sin datos</p></div>';
+
+  // Tabla detalle
+  const tb = document.getElementById('rep-tbody');
+  const todos = [...ing].sort((a, b) => b.fecha.localeCompare(a.fecha));
+  tb.innerHTML = todos.length ? todos.map(x => {
+    const cli = DB.clientes.find(c => c.id == x.cliente_id);
+    const srv = DB.servicios.find(s => s.id == x.servicio_id);
+    const emp = DB.empleados.find(e => e.id == x.empleado_id);
+    return `<tr><td>${x.fecha.slice(0, 16).replace('T', ' ')}</td><td><span class="badge badge-navy">${x.tipo}</span></td><td>${cli ? cli.nombre : '—'}</td><td>${srv ? srv.nombre : '—'}</td><td>${emp ? emp.nombre.split(' ')[0] : '—'}</td><td class="pos">${fmt(x.monto - (x.descuento || 0))}</td><td>${x.metodo_pago || '—'}</td></tr>`;
+  }).join('') : `<tr><td colspan="7"><div class="empty-state"><p>Sin transacciones en el período</p></div></td></tr>`;
+}
+
+function exportarCSV() {
+  const { ing } = getFiltered();
+  const headers = ['Fecha', 'Tipo', 'Cliente', 'Servicio', 'Empleado', 'Monto', 'Descuento', 'Total', 'Método Pago', 'Comisión', 'Observaciones'];
+  const rows = ing.map(x => {
+    const cli = DB.clientes.find(c => c.id == x.cliente_id);
+    const srv = DB.servicios.find(s => s.id == x.servicio_id);
+    const emp = DB.empleados.find(e => e.id == x.empleado_id);
+    return [x.fecha, x.tipo, cli ? cli.nombre : '', srv ? srv.nombre : '', emp ? emp.nombre : '', x.monto, x.descuento || 0, x.monto - (x.descuento || 0), x.metodo_pago, x.comision || 0, x.obs || ''];
+  });
+  const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'origen_reporte_' + todayStr() + '.csv'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('📥 CSV exportado');
+}
+
+function imprimirReporte() { window.print(); }
+
+// ========== CONFIG ==========
+function renderConfig() {
+  const tb = document.getElementById('tbody-usuarios');
+  tb.innerHTML = DB.usuarios.map(u => `<tr>
+    <td><code style="background:var(--gray-100);padding:2px 6px;border-radius:4px;font-size:11px;">${u.usuario}</code></td>
+    <td>${u.nombre}</td>
+    <td><span class="badge ${u.rol === 'admin' ? 'badge-navy' : 'badge-gold'}">${u.rol}</span></td>
+    <td><span class="badge ${u.activo ? 'badge-green' : 'badge-red'}">${u.activo ? 'Activo' : 'Inactivo'}</span></td>
+    <td class="action-btns"><button class="action-btn del" onclick="eliminarUsuario(${u.id})">✕</button></td>
+  </tr>`).join('') || `<tr><td colspan="5"><div class="empty-state"><p>Sin usuarios</p></div></td></tr>`;
+}
+
+function switchConfigTab(tab, el) {
+  ['negocio', 'usuarios', 'datos'].forEach(t => document.getElementById('cfg-' + t).style.display = t === tab ? 'block' : 'none');
+  el.closest('.tab-bar').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  if (tab === 'usuarios') renderConfig();
+}
+
+function guardarUsuario() {
+  const nombre = document.getElementById('usr-nombre').value.trim();
+  const usuario = document.getElementById('usr-user').value.trim();
+  if (!nombre || !usuario) { showToast('⚠️ Nombre y usuario requeridos'); return; }
+  DB.usuarios.push({ id: nextId(DB.usuarios), nombre, usuario, rol: document.getElementById('usr-rol').value, activo: true });
+  saveDB(DB); closeModal('modal-usuario'); showToast('✓ Usuario creado'); renderConfig();
+}
+
+function eliminarUsuario(id) { if (!confirm('¿Eliminar usuario?')) return; DB.usuarios = DB.usuarios.filter(x => x.id != id); saveDB(DB); renderConfig(); }
+
+// ========== EXPORT/IMPORT ==========
+function exportarTodo() {
+  const blob = new Blob([JSON.stringify(DB, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'origen_backup_' + todayStr() + '.json'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('📥 Backup exportado');
+}
+
+function importarDatos(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      DB = JSON.parse(e.target.result);
+      saveDB(DB);
+      showToast('✓ Datos importados correctamente');
+      renderDashboard();
+    } catch(err) { showToast('⚠️ Error al importar: archivo inválido'); }
+  };
+  reader.readAsText(file);
+}
+
+function confirmarReset() {
+  if (confirm('¿BORRAR TODOS LOS DATOS? Esta acción no se puede deshacer.')) {
+    if (confirm('¿Está completamente seguro?')) {
+      localStorage.removeItem(DB_KEY);
+      DB = getDefaultDB();
+      saveDB(DB);
+      showToast('Datos reiniciados');
+      renderDashboard();
+    }
+  }
+}
+
+// ========== INIT ==========
+renderDashboard();
+initIngreso();
+initEgreso();
+</script>
+</body>
+</html>
