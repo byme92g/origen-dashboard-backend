@@ -12,8 +12,14 @@ public static class ClientesEndpoints
             .WithTags("Clientes")
             .RequireAuthorization();
 
-        group.MapGet("/", async (IClienteRepository repo) =>
+        group.MapGet("/", async (IClienteRepository repo, int? page, int? pageSize) =>
         {
+            if (page.HasValue && pageSize.HasValue)
+            {
+                var ps = Math.Clamp(pageSize.Value, 1, 100);
+                var result = await repo.ObtenerPaginadoAsync(page.Value, ps);
+                return Results.Json(new { ok = true, data = result });
+            }
             var lista = await repo.ObtenerTodosAsync();
             return Results.Json(new { ok = true, data = lista });
         })
@@ -74,6 +80,7 @@ public static class ClientesEndpoints
                 : Results.Json(new { error = "Cliente no encontrado." }, statusCode: 404);
         })
         .WithName("EliminarCliente")
-        .WithSummary("Elimina un cliente");
+        .WithSummary("Elimina un cliente")
+        .RequireAuthorization(policy => policy.RequireRole("admin"));
     }
 }

@@ -12,8 +12,15 @@ public static class ServiciosEndpoints
             .WithTags("Servicios")
             .RequireAuthorization();
 
-        group.MapGet("/", async (IServicioRepository repo) =>
-            Results.Json(new { ok = true, data = await repo.ObtenerTodosAsync() }))
+        group.MapGet("/", async (IServicioRepository repo, int? page, int? pageSize) =>
+        {
+            if (page.HasValue && pageSize.HasValue)
+            {
+                var ps = Math.Clamp(pageSize.Value, 1, 100);
+                return Results.Json(new { ok = true, data = await repo.ObtenerPaginadoAsync(page.Value, ps) });
+            }
+            return Results.Json(new { ok = true, data = await repo.ObtenerTodosAsync() });
+        })
         .WithName("ListarServicios")
         .WithSummary("Lista todos los servicios");
 
@@ -45,7 +52,8 @@ public static class ServiciosEndpoints
             return Results.Json(new { ok = true, data = creado }, statusCode: 201);
         })
         .WithName("CrearServicio")
-        .WithSummary("Crea un nuevo servicio");
+        .WithSummary("Crea un nuevo servicio")
+        .RequireAuthorization(policy => policy.RequireRole("admin"));
 
         group.MapPut("/{id:int}", async (int id, ActualizarServicioRequest req, IServicioRepository repo) =>
         {
@@ -64,7 +72,8 @@ public static class ServiciosEndpoints
             return Results.Json(new { ok = true, data = servicio });
         })
         .WithName("ActualizarServicio")
-        .WithSummary("Actualiza un servicio");
+        .WithSummary("Actualiza un servicio")
+        .RequireAuthorization(policy => policy.RequireRole("admin"));
 
         group.MapDelete("/{id:int}", async (int id, IServicioRepository repo) =>
         {
@@ -74,6 +83,7 @@ public static class ServiciosEndpoints
                 : Results.Json(new { error = "Servicio no encontrado." }, statusCode: 404);
         })
         .WithName("EliminarServicio")
-        .WithSummary("Elimina un servicio");
+        .WithSummary("Elimina un servicio")
+        .RequireAuthorization(policy => policy.RequireRole("admin"));
     }
 }

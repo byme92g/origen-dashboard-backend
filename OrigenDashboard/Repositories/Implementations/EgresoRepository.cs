@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using OrigenDashboard.Data;
+using OrigenDashboard.Models;
 using OrigenDashboard.Models.Entities;
 using OrigenDashboard.Repositories.Interfaces;
 
@@ -15,6 +16,24 @@ public class EgresoRepository(AppDbContext db) : IEgresoRepository
             .Where(e => e.Fecha >= desde && e.Fecha <= hasta)
             .OrderByDescending(e => e.Fecha)
             .ToListAsync();
+
+    public async Task<PagedResult<Egreso>> ObtenerPaginadoAsync(int page, int pageSize)
+    {
+        var q = db.Egresos.OrderByDescending(e => e.Fecha);
+        var total = await q.CountAsync();
+        var items = await q.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+        return new PagedResult<Egreso>(items, total, page, pageSize);
+    }
+
+    public async Task<PagedResult<Egreso>> ObtenerPorFechaPaginadoAsync(DateTime desde, DateTime hasta, int page, int pageSize)
+    {
+        var q = db.Egresos
+            .Where(e => e.Fecha >= desde && e.Fecha <= hasta)
+            .OrderByDescending(e => e.Fecha);
+        var total = await q.CountAsync();
+        var items = await q.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+        return new PagedResult<Egreso>(items, total, page, pageSize);
+    }
 
     public async Task<Egreso?> ObtenerPorIdAsync(int id) =>
         await db.Egresos.FindAsync(id);

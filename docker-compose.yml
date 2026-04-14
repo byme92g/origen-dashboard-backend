@@ -32,7 +32,7 @@ services:
       mysql:
         condition: service_healthy
     environment:
-      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: >-
         Server=mysql;Port=3306;Database=${MYSQL_DATABASE:-origen_dashboard};
         User=${MYSQL_USER:-origen_user};Password=${MYSQL_PASSWORD:-origen_pass_2024};

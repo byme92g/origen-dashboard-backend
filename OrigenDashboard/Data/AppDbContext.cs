@@ -11,6 +11,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Producto> Productos => Set<Producto>();
     public DbSet<Paquete> Paquetes => Set<Paquete>();
     public DbSet<PaqueteServicio> PaqueteServicios => Set<PaqueteServicio>();
+    public DbSet<PaqueteProducto> PaqueteProductos => Set<PaqueteProducto>();
     public DbSet<Cliente> Clientes => Set<Cliente>();
     public DbSet<Ingreso> Ingresos => Set<Ingreso>();
     public DbSet<Egreso> Egresos => Set<Egreso>();
@@ -45,12 +46,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             e.Property(p => p.Precio).HasPrecision(10, 2);
             e.Property(p => p.Descuento).HasPrecision(10, 2);
+            e.Property(p => p.ComisionPct).HasPrecision(5, 2);
         });
 
         modelBuilder.Entity<PaqueteServicio>(e =>
         {
             e.HasOne(ps => ps.Paquete).WithMany(p => p.Servicios).HasForeignKey(ps => ps.PaqueteId);
             e.HasOne(ps => ps.Servicio).WithMany().HasForeignKey(ps => ps.ServicioId);
+        });
+
+        modelBuilder.Entity<PaqueteProducto>(e =>
+        {
+            e.HasOne(pp => pp.Paquete).WithMany(p => p.Productos).HasForeignKey(pp => pp.PaqueteId);
+            e.HasOne(pp => pp.Producto).WithMany().HasForeignKey(pp => pp.ProductoId);
         });
 
         modelBuilder.Entity<Ingreso>(e =>

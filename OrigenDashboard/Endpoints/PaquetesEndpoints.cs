@@ -12,8 +12,15 @@ public static class PaquetesEndpoints
             .WithTags("Paquetes")
             .RequireAuthorization();
 
-        group.MapGet("/", async (IPaqueteRepository repo) =>
-            Results.Json(new { ok = true, data = await repo.ObtenerTodosAsync() }))
+        group.MapGet("/", async (IPaqueteRepository repo, int? page, int? pageSize) =>
+        {
+            if (page.HasValue && pageSize.HasValue)
+            {
+                var ps = Math.Clamp(pageSize.Value, 1, 100);
+                return Results.Json(new { ok = true, data = await repo.ObtenerPaginadoAsync(page.Value, ps) });
+            }
+            return Results.Json(new { ok = true, data = await repo.ObtenerTodosAsync() });
+        })
         .WithName("ListarPaquetes")
         .WithSummary("Lista todos los paquetes con sus servicios");
 
@@ -37,14 +44,16 @@ public static class PaquetesEndpoints
                 Nombre = req.Nombre,
                 Descripcion = req.Descripcion,
                 Precio = req.Precio,
-                Descuento = req.Descuento
+                Descuento = req.Descuento,
+                ComisionPct = req.ComisionPct
             };
 
-            var creado = await repo.CrearAsync(paquete, req.ServicioIds);
+            var creado = await repo.CrearAsync(paquete, req.ServicioIds, req.ProductoIds);
             return Results.Json(new { ok = true, data = creado }, statusCode: 201);
         })
         .WithName("CrearPaquete")
-        .WithSummary("Crea un nuevo paquete");
+        .WithSummary("Crea un nuevo paquete")
+        .RequireAuthorization(policy => policy.RequireRole("admin"));
 
         group.MapPut("/{id:int}", async (int id, ActualizarPaqueteRequest req, IPaqueteRepository repo) =>
         {
@@ -56,13 +65,15 @@ public static class PaquetesEndpoints
             paquete.Descripcion = req.Descripcion;
             paquete.Precio = req.Precio;
             paquete.Descuento = req.Descuento;
+            paquete.ComisionPct = req.ComisionPct;
             paquete.Activo = req.Activo;
 
-            await repo.ActualizarAsync(paquete, req.ServicioIds);
+            await repo.ActualizarAsync(paquete, req.ServicioIds, req.ProductoIds);
             return Results.Json(new { ok = true, data = paquete });
         })
         .WithName("ActualizarPaquete")
-        .WithSummary("Actualiza un paquete y sus servicios");
+        .WithSummary("Actualiza un paquete y sus servicios")
+        .RequireAuthorization(policy => policy.RequireRole("admin"));
 
         group.MapDelete("/{id:int}", async (int id, IPaqueteRepository repo) =>
         {
@@ -72,6 +83,7 @@ public static class PaquetesEndpoints
                 : Results.Json(new { error = "Paquete no encontrado." }, statusCode: 404);
         })
         .WithName("EliminarPaquete")
-        .WithSummary("Elimina un paquete");
+        .WithSummary("Elimina un paquete")
+        .RequireAuthorization(policy => policy.RequireRole("admin"));
     }
 }

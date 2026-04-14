@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OrigenDashboard.Data;
+using OrigenDashboard.Data.Seeders;
 using OrigenDashboard.Endpoints;
 using OrigenDashboard.Repositories.Implementations;
 using OrigenDashboard.Repositories.Interfaces;
@@ -12,6 +13,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 // ── OpenAPI ───────────────────────────────────────────────────────────────
 builder.Services.AddOpenApi();
+
+// ── JSON: evitar ciclos de referencia de EF Core ──────────────────────────
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.ReferenceHandler =
+        System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    options.SerializerOptions.DefaultIgnoreCondition =
+        System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+});
 
 // ── MySQL / EF Core ───────────────────────────────────────────────────────
 var connStr = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -66,6 +76,7 @@ builder.Services.AddScoped<IEgresoRepository, EgresoRepository>();
 
 // ── Servicios ─────────────────────────────────────────────────────────────
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IInitialDataSeeder, InitialDataSeeder>();
 
 // ── Build ─────────────────────────────────────────────────────────────────
 var app = builder.Build();
@@ -130,6 +141,14 @@ using (var scope = app.Services.CreateScope())
         });
         await db.SaveChangesAsync();
         logger.LogInformation("Usuario admin creado: {Usuario}", adminUser);
+    }
+
+    // ── Seed: datos de prueba ─────────────────────────────────────────────
+    if (app.Environment.IsDevelopment())
+    {
+        var seeder = scope.ServiceProvider.GetRequiredService<IInitialDataSeeder>();
+        await seeder.SeedAsync(db);
+        logger.LogInformation("Datos de prueba cargados exitosamente");
     }
 }
 

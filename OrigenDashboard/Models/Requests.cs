@@ -77,7 +77,9 @@ public record CrearPaqueteRequest(
     string? Descripcion,
     decimal Precio,
     decimal Descuento,
-    List<int> ServicioIds
+    List<int> ServicioIds,
+    List<int> ProductoIds,
+    decimal ComisionPct = 0
 );
 
 public record ActualizarPaqueteRequest(
@@ -86,7 +88,9 @@ public record ActualizarPaqueteRequest(
     decimal Precio,
     decimal Descuento,
     bool Activo,
-    List<int> ServicioIds
+    List<int> ServicioIds,
+    List<int> ProductoIds,
+    decimal ComisionPct = 0
 );
 
 // --- Clientes ---
@@ -119,7 +123,8 @@ public record CrearIngresoRequest(
     string MetodoPago, // efectivo | transferencia | pos | yape | plin | otro
     string? Referencia,
     decimal Comision,
-    string? Observaciones
+    string? Observaciones,
+    int Cantidad = 1  // unidades; se usa para descontar stock cuando Tipo="producto"
 );
 
 // --- Egresos ---
@@ -138,3 +143,6 @@ public record ReporteRequest(
     DateTime Desde,
     DateTime Hasta
 );
+
+// --- Paginación ---
+public record PagedResult<T>(IEnumerable<T> Items, int Total, int Page, int PageSize);

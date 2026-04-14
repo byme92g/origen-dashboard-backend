@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using OrigenDashboard.Data;
+using OrigenDashboard.Models;
 using OrigenDashboard.Models.Entities;
 using OrigenDashboard.Repositories.Interfaces;
 
@@ -10,15 +11,28 @@ public class PaqueteRepository(AppDbContext db) : IPaqueteRepository
     public async Task<IEnumerable<Paquete>> ObtenerTodosAsync() =>
         await db.Paquetes
             .Include(p => p.Servicios).ThenInclude(ps => ps.Servicio)
+            .Include(p => p.Productos).ThenInclude(pp => pp.Producto)
             .OrderBy(p => p.Nombre)
             .ToListAsync();
+
+    public async Task<PagedResult<Paquete>> ObtenerPaginadoAsync(int page, int pageSize)
+    {
+        var q = db.Paquetes
+            .Include(p => p.Servicios).ThenInclude(ps => ps.Servicio)
+            .Include(p => p.Productos).ThenInclude(pp => pp.Producto)
+            .OrderBy(p => p.Nombre);
+        var total = await q.CountAsync();
+        var items = await q.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+        return new PagedResult<Paquete>(items, total, page, pageSize);
+    }
 
     public async Task<Paquete?> ObtenerPorIdAsync(int id) =>
         await db.Paquetes
             .Include(p => p.Servicios).ThenInclude(ps => ps.Servicio)
+            .Include(p => p.Productos).ThenInclude(pp => pp.Producto)
             .FirstOrDefaultAsync(p => p.Id == id);
 
-    public async Task<Paquete> CrearAsync(Paquete paquete, IEnumerable<int> servicioIds)
+    public async Task<Paquete> CrearAsync(Paquete paquete, IEnumerable<int> servicioIds, IEnumerable<int> productoIds)
     {
         db.Paquetes.Add(paquete);
         await db.SaveChangesAsync();
@@ -26,19 +40,28 @@ public class PaqueteRepository(AppDbContext db) : IPaqueteRepository
         foreach (var sid in servicioIds)
             db.PaqueteServicios.Add(new PaqueteServicio { PaqueteId = paquete.Id, ServicioId = sid });
 
+        foreach (var pid in productoIds)
+            db.PaqueteProductos.Add(new PaqueteProducto { PaqueteId = paquete.Id, ProductoId = pid });
+
         await db.SaveChangesAsync();
         return paquete;
     }
 
-    public async Task<bool> ActualizarAsync(Paquete paquete, IEnumerable<int> servicioIds)
+    public async Task<bool> ActualizarAsync(Paquete paquete, IEnumerable<int> servicioIds, IEnumerable<int> productoIds)
     {
         db.Paquetes.Update(paquete);
 
-        var existentes = db.PaqueteServicios.Where(ps => ps.PaqueteId == paquete.Id);
-        db.PaqueteServicios.RemoveRange(existentes);
+        var serviciosExistentes = db.PaqueteServicios.Where(ps => ps.PaqueteId == paquete.Id);
+        db.PaqueteServicios.RemoveRange(serviciosExistentes);
+
+        var productosExistentes = db.PaqueteProductos.Where(pp => pp.PaqueteId == paquete.Id);
+        db.PaqueteProductos.RemoveRange(productosExistentes);
 
         foreach (var sid in servicioIds)
             db.PaqueteServicios.Add(new PaqueteServicio { PaqueteId = paquete.Id, ServicioId = sid });
+
+        foreach (var pid in productoIds)
+            db.PaqueteProductos.Add(new PaqueteProducto { PaqueteId = paquete.Id, ProductoId = pid });
 
         return await db.SaveChangesAsync() > 0;
     }

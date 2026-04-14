@@ -11,6 +11,7 @@ public class Ingreso
     public int? ProductoId { get; set; }
     public int? PaqueteId { get; set; }
     public string? ConceptoPersonalizado { get; set; }
+    public int Cantidad { get; set; } = 1;  // unidades vendidas (relevante para tipo=producto)
     public decimal Monto { get; set; }
     public decimal Descuento { get; set; } = 0;
     public string MetodoPago { get; set; } = string.Empty; // efectivo | transferencia | pos | yape | plin | otro

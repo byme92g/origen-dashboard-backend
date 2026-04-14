@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using OrigenDashboard.Data;
+using OrigenDashboard.Models;
 using OrigenDashboard.Models.Entities;
 using OrigenDashboard.Repositories.Interfaces;
 
@@ -23,6 +24,24 @@ public class IngresoRepository(AppDbContext db) : IIngresoRepository
             .Where(i => i.Fecha >= desde && i.Fecha <= hasta)
             .OrderByDescending(i => i.Fecha)
             .ToListAsync();
+
+    public async Task<PagedResult<Ingreso>> ObtenerPaginadoAsync(int page, int pageSize)
+    {
+        var q = ConIncludes().OrderByDescending(i => i.Fecha);
+        var total = await q.CountAsync();
+        var items = await q.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+        return new PagedResult<Ingreso>(items, total, page, pageSize);
+    }
+
+    public async Task<PagedResult<Ingreso>> ObtenerPorFechaPaginadoAsync(DateTime desde, DateTime hasta, int page, int pageSize)
+    {
+        var q = ConIncludes()
+            .Where(i => i.Fecha >= desde && i.Fecha <= hasta)
+            .OrderByDescending(i => i.Fecha);
+        var total = await q.CountAsync();
+        var items = await q.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+        return new PagedResult<Ingreso>(items, total, page, pageSize);
+    }
 
     public async Task<Ingreso?> ObtenerPorIdAsync(int id) =>
         await ConIncludes().FirstOrDefaultAsync(i => i.Id == id);

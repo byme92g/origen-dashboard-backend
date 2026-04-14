@@ -11,10 +11,16 @@ public static class UsuariosEndpoints
     {
         var group = app.MapGroup("/api/usuarios")
             .WithTags("Usuarios")
-            .RequireAuthorization();
+            .RequireAuthorization(policy => policy.RequireRole("admin"));
 
-        group.MapGet("/", async (IUsuarioRepository repo) =>
+        group.MapGet("/", async (IUsuarioRepository repo, int? page, int? pageSize) =>
         {
+            if (page.HasValue && pageSize.HasValue)
+            {
+                var ps = Math.Clamp(pageSize.Value, 1, 100);
+                var result = await repo.ObtenerPaginadoAsync(page.Value, ps);
+                return Results.Json(new { ok = true, data = new { result.Total, result.Page, result.PageSize, Items = result.Items.Select(u => new { u.Id, u.NombreUsuario, u.NombreCompleto, u.Rol, u.Activo }) } });
+            }
             var lista = await repo.ObtenerTodosAsync();
             return Results.Json(new { ok = true, data = lista.Select(u => new { u.Id, u.NombreUsuario, u.NombreCompleto, u.Rol, u.Activo }) });
         })

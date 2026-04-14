@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using OrigenDashboard.Data;
+using OrigenDashboard.Models;
 using OrigenDashboard.Models.Entities;
 using OrigenDashboard.Repositories.Interfaces;
 
@@ -9,6 +10,14 @@ public class ClienteRepository(AppDbContext db) : IClienteRepository
 {
     public async Task<IEnumerable<Cliente>> ObtenerTodosAsync() =>
         await db.Clientes.OrderBy(c => c.Nombre).ToListAsync();
+
+    public async Task<PagedResult<Cliente>> ObtenerPaginadoAsync(int page, int pageSize)
+    {
+        var q = db.Clientes.OrderBy(c => c.Nombre);
+        var total = await q.CountAsync();
+        var items = await q.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+        return new PagedResult<Cliente>(items, total, page, pageSize);
+    }
 
     public async Task<Cliente?> ObtenerPorIdAsync(int id) =>
         await db.Clientes.FindAsync(id);

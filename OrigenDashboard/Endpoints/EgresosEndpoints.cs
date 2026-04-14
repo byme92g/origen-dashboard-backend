@@ -12,12 +12,19 @@ public static class EgresosEndpoints
             .WithTags("Egresos")
             .RequireAuthorization();
 
-        group.MapGet("/", async (IEgresoRepository repo, DateTime? desde, DateTime? hasta) =>
+        group.MapGet("/", async (IEgresoRepository repo, DateTime? desde, DateTime? hasta, int? page, int? pageSize) =>
         {
+            if (page.HasValue && pageSize.HasValue)
+            {
+                var ps = Math.Clamp(pageSize.Value, 1, 100);
+                var result = desde.HasValue && hasta.HasValue
+                    ? await repo.ObtenerPorFechaPaginadoAsync(desde.Value, hasta.Value, page.Value, ps)
+                    : await repo.ObtenerPaginadoAsync(page.Value, ps);
+                return Results.Json(new { ok = true, data = result });
+            }
             var lista = desde.HasValue && hasta.HasValue
                 ? await repo.ObtenerPorFechaAsync(desde.Value, hasta.Value)
                 : await repo.ObtenerTodosAsync();
-
             return Results.Json(new { ok = true, data = lista });
         })
         .WithName("ListarEgresos")
@@ -33,6 +40,8 @@ public static class EgresosEndpoints
         .WithName("ObtenerEgreso")
         .WithSummary("Obtiene un egreso por ID");
 
+        string[] categoriasValidas = ["suministros", "servicios", "salarios", "renta", "marketing", "mantenimiento", "impuestos", "otros"];
+
         group.MapPost("/", async (CrearEgresoRequest req, IEgresoRepository repo) =>
         {
             if (string.IsNullOrWhiteSpace(req.Descripcion))
@@ -40,6 +49,9 @@ public static class EgresosEndpoints
 
             if (req.Monto <= 0)
                 return Results.Json(new { error = "El monto debe ser mayor a 0." }, statusCode: 400);
+
+            if (!categoriasValidas.Contains(req.Categoria))
+                return Results.Json(new { error = $"Categoría inválida. Valores permitidos: {string.Join(", ", categoriasValidas)}." }, statusCode: 400);
 
             var egreso = new Egreso
             {
@@ -66,6 +78,7 @@ public static class EgresosEndpoints
                 : Results.Json(new { error = "Egreso no encontrado." }, statusCode: 404);
         })
         .WithName("EliminarEgreso")
-        .WithSummary("Elimina un egreso");
+        .WithSummary("Elimina un egreso")
+        .RequireAuthorization(policy => policy.RequireRole("admin"));
     }
 }
