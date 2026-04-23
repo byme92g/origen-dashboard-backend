@@ -1,6 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using OrigenDashboard.Data;
 using OrigenDashboard.Data.Seeders;
@@ -8,6 +9,7 @@ using OrigenDashboard.Endpoints;
 using OrigenDashboard.Repositories.Implementations;
 using OrigenDashboard.Repositories.Interfaces;
 using OrigenDashboard.Services;
+using OrigenDashboard.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,8 +80,15 @@ builder.Services.AddScoped<IEgresoRepository, EgresoRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IInitialDataSeeder, InitialDataSeeder>();
 
+// ── Admin options ─────────────────────────────────────────────────────────
+builder.Services.AddOptions<AdminOptions>()
+    .BindConfiguration("")
+    .ValidateOnStart();
+
 // ── Build ─────────────────────────────────────────────────────────────────
 var app = builder.Build();
+
+app.ValidateConfiguration();
 
 // ── Middleware ────────────────────────────────────────────────────────────
 if (app.Environment.IsDevelopment())
@@ -126,8 +135,9 @@ using (var scope = app.Services.CreateScope())
     }
 
     // ── Seed: admin inicial ───────────────────────────────────────────────
-    var adminUser = app.Configuration["Seed:AdminUsername"] ?? "admin";
-    var adminPass = app.Configuration["Seed:AdminPassword"] ?? "admin";
+    var adminOpts = scope.ServiceProvider.GetRequiredService<IOptions<AdminOptions>>().Value;
+    var adminUser = adminOpts.AdminUsername;
+    var adminPass = adminOpts.AdminPassword;
 
     if (!db.Usuarios.Any(u => u.Rol == "admin"))
     {

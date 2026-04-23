@@ -99,14 +99,16 @@ jobs:
             MYSQL_USER=${{ vars.MYSQL_USER }}
             MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
-            SEED_ADMIN_USERNAME=${{ secrets.SEED_ADMIN_USERNAME }}
-            SEED_ADMIN_PASSWORD=${{ secrets.SEED_ADMIN_PASSWORD }}
+            ADMIN_USERNAME=${{ secrets.ADMIN_USERNAME }}
+            ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
             EOF
             chmod 600 /opt/origen/.env
 
             docker load < /tmp/image.tar.gz
             rm /tmp/image.tar.gz
 
+            # Start MySQL if not running, then start/update backend
+            docker compose -f ${{ env.COMPOSE_FILE }} up -d mysql
             docker compose -f ${{ env.COMPOSE_FILE }} up -d --no-deps backend
 
             docker image prune -f

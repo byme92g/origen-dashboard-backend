@@ -41,8 +41,8 @@ services:
       Jwt__Issuer: origen-dashboard
       Jwt__Audience: origen-dashboard-client
       Cors__AllowedOrigins__0: http://localhost:3002
-      Seed__AdminUsername: admin
-      Seed__AdminPassword: admin
+      AdminUsername: ${ADMIN_USERNAME:-admin}
+      AdminPassword: ${ADMIN_PASSWORD:-admin}
     ports:
       - "5000:8080"
     healthcheck:
