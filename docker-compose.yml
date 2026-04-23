@@ -40,7 +40,7 @@ services:
       Jwt__Secret: ${JWT_SECRET:-CAMBIA_ESTA_CLAVE_SECRET_EN_PRODUCCION_MIN32CHARS}
       Jwt__Issuer: origen-dashboard
       Jwt__Audience: origen-dashboard-client
-      Cors__AllowedOrigins__0: http://localhost:3000
+      Cors__AllowedOrigins__0: http://localhost:3002
       Seed__AdminUsername: admin
       Seed__AdminPassword: admin
     ports:
@@ -63,7 +63,7 @@ services:
       backend:
         condition: service_started
     ports:
-      - "3000:80"
+      - "3002:80"
 
 volumes:
   mysql_data:
