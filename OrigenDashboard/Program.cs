@@ -154,7 +154,7 @@ using (var scope = app.Services.CreateScope())
     }
 
     // ── Seed: datos de prueba ─────────────────────────────────────────────
-    if (app.Environment.IsDevelopment())
+    if (app.Environment.IsDevelopment() || args.Contains("--seed"))
     {
         var seeder = scope.ServiceProvider.GetRequiredService<IInitialDataSeeder>();
         await seeder.SeedAsync(db);

@@ -2,20 +2,18 @@ services:
 
   # ── MySQL 8.0 ─────────────────────────────────────────────────────────────
   mysql:
-    image: mysql:8.0
+    image: mysql:8.0.32
     container_name: origen_mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-origen_root_2024}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-origen_dashboard}
-      MYSQL_USER: ${MYSQL_USER:-origen_user}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-origen_pass_2024}
-    ports:
-      - "3307:3306"          # 3307 en host para no pisar MySQL local
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-origen_root_2024}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -23,28 +21,23 @@ services:
 
   # ── Backend (.NET 10 API) ─────────────────────────────────────────────────
   backend:
-    build:
-      context: ./OrigenDashboard
-      dockerfile: Dockerfile
+    image: origen-backend:latest
     container_name: origen_backend
     restart: unless-stopped
     depends_on:
       mysql:
         condition: service_healthy
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__DefaultConnection: >-
-        Server=mysql;Port=3306;Database=${MYSQL_DATABASE:-origen_dashboard};
-        User=${MYSQL_USER:-origen_user};Password=${MYSQL_PASSWORD:-origen_pass_2024};
-        AllowUserVariables=true;
-      Jwt__Secret: ${JWT_SECRET:-CAMBIA_ESTA_CLAVE_SECRET_EN_PRODUCCION_MIN32CHARS}
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "Server=mysql;Port=3306;Database=${MYSQL_DATABASE};User=${MYSQL_USER};Password=${MYSQL_PASSWORD};AllowUserVariables=true;"
+      Jwt__Secret: ${JWT_SECRET}
       Jwt__Issuer: origen-dashboard
       Jwt__Audience: origen-dashboard-client
-      Cors__AllowedOrigins__0: http://localhost:3002
-      AdminUsername: ${ADMIN_USERNAME:-admin}
-      AdminPassword: ${ADMIN_PASSWORD:-admin}
+      Cors__AllowedOrigins__0: https://app.origencapilarestetica.pe
+      AdminUsername: ${ADMIN_USERNAME}
+      AdminPassword: ${ADMIN_PASSWORD}
     ports:
-      - "5000:8080"
+      - "127.0.0.1:5000:8080"
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080/health 2>/dev/null || wget -qO- http://localhost:8080/health 2>/dev/null || exit 1"]
       interval: 15s
@@ -54,16 +47,14 @@ services:
 
   # ── Frontend (Blazor WASM + nginx) ────────────────────────────────────────
   frontend:
-    build:
-      context: ../origen-dashboard-frontend/OrigenDashboard
-      dockerfile: Dockerfile
+    image: origen-frontend:latest
     container_name: origen_frontend
     restart: unless-stopped
     depends_on:
       backend:
         condition: service_started
     ports:
-      - "3002:80"
+      - "127.0.0.1:3002:80"
 
 volumes:
   mysql_data:
