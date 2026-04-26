@@ -29,7 +29,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 // ── MySQL / EF Core ───────────────────────────────────────────────────────
 var connStr = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(connStr, ServerVersion.AutoDetect(connStr)));
+    options.UseMySql(connStr, new MySqlServerVersion(new Version(8, 0, 44))));
 
 // ── JWT Authentication ────────────────────────────────────────────────────
 var jwtSecret = builder.Configuration["Jwt:Secret"]

@@ -12,7 +12,11 @@
       "Bash(sed -i 's/class=\"table-light\"/class=\"table-origen\"/g' \"c:/Users/byme_/source/repos/origen-dashboard-frontend/svelte/src/pages/Servicios.svelte\")",
       "Bash(sed -i 's/class=\"table-light\"/class=\"table-origen\"/g' \"c:/Users/byme_/source/repos/origen-dashboard-frontend/svelte/src/pages/Clientes.svelte\")",
       "Bash(echo \"exit: $?\")",
-      "Bash(docker compose *)"
+      "Bash(docker compose *)",
+      "Read(//c/Users/byme_/**)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\byme_"
     ]
   }
 }
