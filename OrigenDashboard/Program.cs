@@ -59,7 +59,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("BlazorPolicy", policy =>
     {
         var origins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-            ?? ["http://localhost:5173", "https://localhost:7173"];
+            ?? throw new InvalidOperationException("Cors:AllowedOrigins no configurado.");
 
         policy.WithOrigins(origins)
               .AllowAnyHeader()
