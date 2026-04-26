@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using OrigenDashboard.Data;
 using OrigenDashboard.Data.Seeders;
 using OrigenDashboard.Endpoints;
+using OrigenDashboard.Models.Entities;
 using OrigenDashboard.Repositories.Implementations;
 using OrigenDashboard.Repositories.Interfaces;
 using OrigenDashboard.Services;
@@ -136,24 +137,31 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-    // ── Seed: admin inicial ───────────────────────────────────────────────
+var forceResetAdmin = args.Any(a => a.Equals("--create-admin", StringComparison.OrdinalIgnoreCase));
+
+if (forceResetAdmin)
+{
     var adminOpts = scope.ServiceProvider.GetRequiredService<IOptions<AdminOptions>>().Value;
     var adminUser = adminOpts.AdminUsername;
     var adminPass = adminOpts.AdminPassword;
 
-    if (!db.Usuarios.Any(u => u.Rol == "admin"))
+    // ⚠️ DIRTY TRICK FOR NOW: siempre recrea admin si se pasa flag
+    var existingAdmins = db.Usuarios.Where(u => u.Rol == "admin");
+
+    db.Usuarios.RemoveRange(existingAdmins);
+
+    db.Usuarios.Add(new Usuario
     {
-        db.Usuarios.Add(new OrigenDashboard.Models.Entities.Usuario
-        {
-            NombreUsuario  = adminUser,
-            NombreCompleto = "Administrador",
-            PasswordHash   = BCrypt.Net.BCrypt.HashPassword(adminPass),
-            Rol            = "admin",
-            Activo         = true
-        });
-        await db.SaveChangesAsync();
-        logger.LogInformation("Usuario admin creado: {Usuario}", adminUser);
-    }
+        NombreUsuario  = adminUser,
+        NombreCompleto = "Administrador",
+        PasswordHash   = BCrypt.Net.BCrypt.HashPassword(adminPass),
+        Rol            = "admin",
+        Activo         = true
+    });
+
+    await db.SaveChangesAsync();
+    logger.LogWarning("Admin RECREADO via --reset-admin (hard override)");
+}
 
     // ── Seed: datos de prueba ─────────────────────────────────────────────
     if (app.Environment.IsDevelopment() || args.Contains("--seed"))
