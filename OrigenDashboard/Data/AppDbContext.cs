@@ -15,6 +15,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Cliente> Clientes => Set<Cliente>();
     public DbSet<Ingreso> Ingresos => Set<Ingreso>();
     public DbSet<Egreso> Egresos => Set<Egreso>();
+    public DbSet<CajaApertura> CajaAperturas => Set<CajaApertura>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -76,6 +77,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<Egreso>(e =>
         {
             e.Property(eg => eg.Monto).HasPrecision(10, 2);
+        });
+
+        modelBuilder.Entity<CajaApertura>(e =>
+        {
+            e.Property(c => c.MontoInicial).HasPrecision(10, 2);
+            e.Property(c => c.TotalIngresos).HasPrecision(10, 2);
+            e.Property(c => c.TotalEgresos).HasPrecision(10, 2);
+            e.Property(c => c.SaldoFinal).HasPrecision(10, 2);
         });
     }
 }

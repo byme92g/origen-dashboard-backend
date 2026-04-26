@@ -2,7 +2,7 @@ services:
 
   # ── MySQL 8.0 ─────────────────────────────────────────────────────────────
   mysql:
-    image: mysql:8.0.32
+    image: mysql:8.0.44
     container_name: origen_mysql
     restart: unless-stopped
     environment:
@@ -21,6 +21,9 @@ services:
 
   # ── Backend (.NET 10 API) ─────────────────────────────────────────────────
   backend:
+    build:
+      context: ./OrigenDashboard
+      dockerfile: Dockerfile
     image: origen-backend:latest
     container_name: origen_backend
     restart: unless-stopped
@@ -33,7 +36,8 @@ services:
       Jwt__Secret: ${JWT_SECRET}
       Jwt__Issuer: origen-dashboard
       Jwt__Audience: origen-dashboard-client
-      Cors__AllowedOrigins__0: https://app.origencapilarestetica.pe
+      Cors__AllowedOrigins__0: ${CORS_ORIGIN_0}
+      Cors__AllowedOrigins__1: ${CORS_ORIGIN_1:-}
       AdminUsername: ${ADMIN_USERNAME}
       AdminPassword: ${ADMIN_PASSWORD}
     ports:
@@ -47,6 +51,9 @@ services:
 
   # ── Frontend (Blazor WASM + nginx) ────────────────────────────────────────
   frontend:
+    build:
+      context: ../origen-dashboard-frontend/OrigenDashboard
+      dockerfile: Dockerfile
     image: origen-frontend:latest
     container_name: origen_frontend
     restart: unless-stopped

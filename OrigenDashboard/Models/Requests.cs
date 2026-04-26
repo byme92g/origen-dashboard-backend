@@ -138,6 +138,19 @@ public record CrearEgresoRequest(
     string? Observaciones
 );
 
+// --- Caja ---
+public record AbrirCajaRequest(
+    decimal MontoInicial,
+    string? Responsables
+);
+
+public record CerrarCajaRequest(
+    decimal TotalIngresos,
+    decimal TotalEgresos,
+    decimal SaldoFinal,
+    string? Observaciones
+);
+
 // --- Reportes ---
 public record ReporteRequest(
     DateTime Desde,

@@ -75,6 +75,7 @@ builder.Services.AddScoped<IPaqueteRepository, PaqueteRepository>();
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IIngresoRepository, IngresoRepository>();
 builder.Services.AddScoped<IEgresoRepository, EgresoRepository>();
+builder.Services.AddScoped<ICajaRepository, CajaRepository>();
 
 // ── Servicios ─────────────────────────────────────────────────────────────
 builder.Services.AddScoped<ITokenService, TokenService>();
@@ -112,6 +113,7 @@ app.MapProductosEndpoints();
 app.MapPaquetesEndpoints();
 app.MapIngresosEndpoints();
 app.MapEgresosEndpoints();
+app.MapCajaEndpoints();
 app.MapReportesEndpoints();
 
 // ── Migración automática al iniciar (con retry para Docker) ──────────────
