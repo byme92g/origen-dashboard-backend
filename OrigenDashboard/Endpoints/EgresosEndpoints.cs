@@ -30,6 +30,22 @@ public static class EgresosEndpoints
         .WithName("ListarEgresos")
         .WithSummary("Lista egresos, opcionalmente filtrados por rango de fecha");
 
+        var categorias = new[]
+        {
+            new { key = "suministros", label = "Insumos y productos" },
+            new { key = "servicios", label = "Servicios y utilidades" },
+            new { key = "salarios", label = "Sueldos y comisiones" },
+            new { key = "renta", label = "Alquiler" },
+            new { key = "marketing", label = "Marketing y publicidad" },
+            new { key = "mantenimiento", label = "Equipos y mantenimiento" },
+            new { key = "impuestos", label = "Impuestos" },
+            new { key = "otros", label = "Otros" }
+        };
+
+        group.MapGet("/categorias", () => Results.Json(new { ok = true, data = categorias }))
+        .WithName("ListarCategoriasEgresos")
+        .WithSummary("Lista las categorias canonicas de egresos");
+
         group.MapGet("/{id:int}", async (int id, IEgresoRepository repo) =>
         {
             var egreso = await repo.ObtenerPorIdAsync(id);
@@ -40,7 +56,7 @@ public static class EgresosEndpoints
         .WithName("ObtenerEgreso")
         .WithSummary("Obtiene un egreso por ID");
 
-        string[] categoriasValidas = ["suministros", "servicios", "salarios", "renta", "marketing", "mantenimiento", "impuestos", "otros"];
+        var categoriasValidas = categorias.Select(c => c.key).ToArray();
 
         group.MapPost("/", async (CrearEgresoRequest req, IEgresoRepository repo) =>
         {
