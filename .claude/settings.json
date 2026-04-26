@@ -1,7 +1,18 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dotnet add *)"
+      "Bash(dotnet add *)",
+      "Bash(dotnet build *)",
+      "Bash(openssl rand *)",
+      "Bash(xargs grep *)",
+      "Bash(xargs ls *)",
+      "Bash(sed -i 's/class=\"nav nav-tabs mb-3\"/class=\"nav nav-tabs nav-tabs-origen mb-3\"/g' \"c:/Users/byme_/source/repos/origen-dashboard-frontend/svelte/src/pages/Empleados.svelte\")",
+      "Bash(sed -i 's/class=\"table-light\"/class=\"table-origen\"/g' \"c:/Users/byme_/source/repos/origen-dashboard-frontend/svelte/src/pages/Empleados.svelte\")",
+      "Bash(sed -i 's/class=\"nav nav-tabs mb-3\"/class=\"nav nav-tabs nav-tabs-origen mb-3\"/g' \"c:/Users/byme_/source/repos/origen-dashboard-frontend/svelte/src/pages/Servicios.svelte\")",
+      "Bash(sed -i 's/class=\"table-light\"/class=\"table-origen\"/g' \"c:/Users/byme_/source/repos/origen-dashboard-frontend/svelte/src/pages/Servicios.svelte\")",
+      "Bash(sed -i 's/class=\"table-light\"/class=\"table-origen\"/g' \"c:/Users/byme_/source/repos/origen-dashboard-frontend/svelte/src/pages/Clientes.svelte\")",
+      "Bash(echo \"exit: $?\")",
+      "Bash(docker compose *)"
     ]
   }
 }
