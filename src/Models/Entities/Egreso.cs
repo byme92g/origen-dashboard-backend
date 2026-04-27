@@ -11,5 +11,7 @@ public class Egreso
     public string? Proveedor { get; set; }
     public string? Comprobante { get; set; }
     public string? Observaciones { get; set; }
+    public int? CajaAperturaId { get; set; }
+    public CajaApertura? CajaApertura { get; set; }
     public DateTime CreadoEn { get; set; } = DateTime.UtcNow;
 }

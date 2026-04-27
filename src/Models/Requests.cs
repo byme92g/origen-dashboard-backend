@@ -1,3 +1,4 @@
+using OrigenDashboard.Models.Entities;
 using OrigenDashboard.Models.Enums;
 
 namespace OrigenDashboard.Models;
@@ -51,8 +52,11 @@ public record CrearCategoriaRequest(string Nombre, TipoCategoria Tipo);
 public record ActualizarCategoriaRequest(string Nombre, TipoCategoria Tipo, bool Activo);
 
 // Caja
-public record AbrirCajaRequest(decimal MontoInicial, string? Responsables);
-public record CerrarCajaRequest(decimal TotalIngresos, decimal TotalEgresos, decimal SaldoFinal, string? Observaciones);
+public record AbrirCajaRequest(decimal MontoInicial, List<int> ResponsableIds);
+public record CerrarCajaRequest(decimal? TotalIngresos, decimal? TotalEgresos, decimal? SaldoFinal, string? Observaciones);
+public record CajaEstadoResponse(
+    CajaApertura? Apertura, decimal MontoInicial, decimal TotalIngresos,
+    decimal TotalEgresos, decimal SaldoActual, bool Abierta);
 
 // Reportes
 public record ReporteRequest(DateTime Desde, DateTime Hasta);

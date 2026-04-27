@@ -9,11 +9,38 @@ namespace OrigenDashboard.Repositories.Implementations;
 public class CajaRepository(AppDbContext db) : ICajaRepository
 {
     public async Task<CajaApertura?> ObtenerAperturaActualAsync() =>
-        await db.CajaAperturas.FirstOrDefaultAsync(c => c.CerradaEn == null);
+        await db.CajaAperturas
+            .Include(c => c.Responsables)
+                .ThenInclude(r => r.Empleado)
+            .FirstOrDefaultAsync(c => c.CerradaEn == null);
+
+    public async Task<CajaEstadoResponse> ObtenerEstadoActualAsync()
+    {
+        var apertura = await ObtenerAperturaActualAsync();
+        if (apertura is null)
+            return new CajaEstadoResponse(null, 0, 0, 0, 0, false);
+
+        var totalIngresos = await db.Ingresos
+            .Where(i => i.CajaAperturaId == apertura.Id)
+            .SumAsync(i => i.Monto - i.Descuento);
+        var totalEgresos = await db.Egresos
+            .Where(e => e.CajaAperturaId == apertura.Id)
+            .SumAsync(e => e.Monto);
+
+        return new CajaEstadoResponse(
+            apertura,
+            apertura.MontoInicial,
+            totalIngresos,
+            totalEgresos,
+            apertura.MontoInicial + totalIngresos - totalEgresos,
+            true);
+    }
 
     public async Task<PagedResult<CajaApertura>> ObtenerHistorialAsync(int page, int pageSize)
     {
         var q = db.CajaAperturas
+            .Include(c => c.Responsables)
+                .ThenInclude(r => r.Empleado)
             .Where(c => c.CerradaEn != null)
             .OrderByDescending(c => c.CerradaEn);
         var total = await q.CountAsync();
@@ -28,15 +55,22 @@ public class CajaRepository(AppDbContext db) : ICajaRepository
         return apertura;
     }
 
-    public async Task<bool> CerrarAsync(int id, decimal totalIngresos, decimal totalEgresos, decimal saldoFinal, string? observaciones)
+    public async Task<CajaApertura?> CerrarAsync(int id, string? observaciones)
     {
         var apertura = await db.CajaAperturas.FindAsync(id);
-        if (apertura is null || apertura.CerradaEn is not null) return false;
+        if (apertura is null || apertura.CerradaEn is not null) return null;
+        var totalIngresos = await db.Ingresos
+            .Where(i => i.CajaAperturaId == apertura.Id)
+            .SumAsync(i => i.Monto - i.Descuento);
+        var totalEgresos = await db.Egresos
+            .Where(e => e.CajaAperturaId == apertura.Id)
+            .SumAsync(e => e.Monto);
         apertura.CerradaEn = DateTime.UtcNow;
         apertura.TotalIngresos = totalIngresos;
         apertura.TotalEgresos = totalEgresos;
-        apertura.SaldoFinal = saldoFinal;
+        apertura.SaldoFinal = apertura.MontoInicial + totalIngresos - totalEgresos;
         apertura.Observaciones = observaciones;
-        return await db.SaveChangesAsync() > 0;
+        await db.SaveChangesAsync();
+        return apertura;
     }
 }

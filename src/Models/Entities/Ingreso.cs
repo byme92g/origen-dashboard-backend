@@ -20,6 +20,7 @@ public class Ingreso
     public string? Referencia { get; set; }
     public decimal Comision { get; set; } = 0;
     public string? Observaciones { get; set; }
+    public int? CajaAperturaId { get; set; }
     public DateTime CreadoEn { get; set; } = DateTime.UtcNow;
 
     public Cliente? Cliente { get; set; }
@@ -27,4 +28,5 @@ public class Ingreso
     public Servicio? Servicio { get; set; }
     public Producto? Producto { get; set; }
     public Paquete? Paquete { get; set; }
+    public CajaApertura? CajaApertura { get; set; }
 }

@@ -7,7 +7,7 @@ using OrigenDashboard.Repositories.Interfaces;
 
 namespace OrigenDashboard.Controllers;
 
-public class EgresosController(IEgresoRepository repo) : BaseController
+public class EgresosController(IEgresoRepository repo, ICajaRepository cajaRepo) : BaseController
 {
     [HttpGet]
     public async Task<IActionResult> Listar(DateTime? desde, DateTime? hasta, int? page, int? pageSize)
@@ -73,6 +73,7 @@ public class EgresosController(IEgresoRepository repo) : BaseController
         if (!await repo.ExisteCategoriaActivaAsync(req.CategoriaId, TipoCategoria.Egreso))
             throw new ArgumentException("La categoría no existe, está inactiva o no aplica para egresos.");
 
+        var cajaAbierta = await cajaRepo.ObtenerAperturaActualAsync();
         var egreso = new Egreso
         {
             Fecha = req.Fecha,
@@ -81,9 +82,17 @@ public class EgresosController(IEgresoRepository repo) : BaseController
             Monto = req.Monto,
             Proveedor = req.Proveedor,
             Comprobante = req.Comprobante,
-            Observaciones = req.Observaciones
+            Observaciones = req.Observaciones,
+            CajaAperturaId = cajaAbierta?.Id
         };
-        return ApiCreated(await repo.CrearAsync(egreso));
+        var creado = await repo.CrearAsync(egreso);
+        return ApiCreated(new
+        {
+            egreso = creado,
+            message = cajaAbierta is null
+                ? "Egreso guardado como global porque no hay una caja abierta."
+                : $"Egreso asignado a la caja #{cajaAbierta.Id}."
+        });
     }
 
     [HttpDelete("{id:int}")]

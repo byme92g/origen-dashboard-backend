@@ -7,7 +7,10 @@ using OrigenDashboard.Repositories.Interfaces;
 
 namespace OrigenDashboard.Controllers;
 
-public class IngresosController(IIngresoRepository repo, IProductoRepository productoRepo) : BaseController
+public class IngresosController(
+    IIngresoRepository repo,
+    IProductoRepository productoRepo,
+    ICajaRepository cajaRepo) : BaseController
 {
     [HttpGet]
     public async Task<IActionResult> Listar(DateTime? desde, DateTime? hasta, int? page, int? pageSize)
@@ -51,6 +54,7 @@ public class IngresosController(IIngresoRepository repo, IProductoRepository pro
             await productoRepo.ActualizarAsync(producto);
         }
 
+        var cajaAbierta = await cajaRepo.ObtenerAperturaActualAsync();
         var ingreso = new Ingreso
         {
             Fecha = req.Fecha,
@@ -67,10 +71,18 @@ public class IngresosController(IIngresoRepository repo, IProductoRepository pro
             MetodoPago = req.MetodoPago,
             Referencia = req.Referencia,
             Comision = req.Comision,
-            Observaciones = req.Observaciones
+            Observaciones = req.Observaciones,
+            CajaAperturaId = cajaAbierta?.Id
         };
 
-        return ApiCreated(await repo.CrearAsync(ingreso));
+        var creado = await repo.CrearAsync(ingreso);
+        return ApiCreated(new
+        {
+            ingreso = creado,
+            message = cajaAbierta is null
+                ? "Ingreso guardado como global porque no hay una caja abierta."
+                : $"Ingreso asignado a la caja #{cajaAbierta.Id}."
+        });
     }
 
     [HttpDelete("{id:int}")]

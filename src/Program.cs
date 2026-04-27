@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Options;
 using OrigenDashboard;
 using OrigenDashboard.Data;
@@ -27,7 +28,9 @@ builder.Services.AddControllers()
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
-        new MySqlServerVersion(new Version(8, 0, 44))));
+        new MySqlServerVersion(new Version(8, 0, 44)))
+    .ConfigureWarnings(warnings =>
+        warnings.Ignore(RelationalEventId.PendingModelChangesWarning)));
 
 // JWT Authentication + Authorization
 builder.Services.AddJwtAuthentication(builder.Configuration);

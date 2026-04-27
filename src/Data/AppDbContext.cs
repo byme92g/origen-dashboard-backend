@@ -18,6 +18,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Egreso> Egresos => Set<Egreso>();
     public DbSet<Categoria> Categorias => Set<Categoria>();
     public DbSet<CajaApertura> CajaAperturas => Set<CajaApertura>();
+    public DbSet<CajaAperturaResponsable> CajaAperturaResponsables => Set<CajaAperturaResponsable>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -88,6 +89,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.HasOne(i => i.Servicio).WithMany().HasForeignKey(i => i.ServicioId).OnDelete(DeleteBehavior.SetNull);
             e.HasOne(i => i.Producto).WithMany().HasForeignKey(i => i.ProductoId).OnDelete(DeleteBehavior.SetNull);
             e.HasOne(i => i.Paquete).WithMany().HasForeignKey(i => i.PaqueteId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne(i => i.CajaApertura).WithMany().HasForeignKey(i => i.CajaAperturaId).OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<Egreso>(e =>
@@ -97,6 +99,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .WithMany()
                 .HasForeignKey(eg => eg.CategoriaId)
                 .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(eg => eg.CajaApertura)
+                .WithMany()
+                .HasForeignKey(eg => eg.CajaAperturaId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<Categoria>(e =>
@@ -116,6 +122,18 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(c => c.TotalIngresos).HasPrecision(10, 2);
             e.Property(c => c.TotalEgresos).HasPrecision(10, 2);
             e.Property(c => c.SaldoFinal).HasPrecision(10, 2);
+        });
+
+        modelBuilder.Entity<CajaAperturaResponsable>(e =>
+        {
+            e.HasKey(r => new { r.CajaAperturaId, r.EmpleadoId });
+            e.HasOne(r => r.CajaApertura)
+                .WithMany(c => c.Responsables)
+                .HasForeignKey(r => r.CajaAperturaId);
+            e.HasOne(r => r.Empleado)
+                .WithMany()
+                .HasForeignKey(r => r.EmpleadoId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

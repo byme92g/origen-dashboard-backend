@@ -54,7 +54,7 @@ services:
   # Svelte Frontend
   svelte:
     build:
-      context: ../origen-dashboard-frontend/src
+      context: ../origen-dashboard-frontend
       dockerfile: Dockerfile
     image: origen-svelte:latest
     container_name: origen_svelte

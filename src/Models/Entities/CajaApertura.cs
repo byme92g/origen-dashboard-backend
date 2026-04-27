@@ -5,7 +5,7 @@ public class CajaApertura
     public int Id { get; set; }
     public DateTime AbiertaEn { get; set; } = DateTime.UtcNow;
     public decimal MontoInicial { get; set; }
-    public string? Responsables { get; set; }
+    public List<CajaAperturaResponsable> Responsables { get; set; } = [];
     public DateTime? CerradaEn { get; set; }
     public decimal? TotalIngresos { get; set; }
     public decimal? TotalEgresos { get; set; }
