@@ -2,6 +2,9 @@
 **/bin/
 **/obj/
 
+# EF Core migrations (locales, no se pushean)
+**/Migrations/
+
 # Visual Studio
 .vs/
 *.user

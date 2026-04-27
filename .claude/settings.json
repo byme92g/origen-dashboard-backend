@@ -13,10 +13,19 @@
       "Bash(sed -i 's/class=\"table-light\"/class=\"table-origen\"/g' \"c:/Users/byme_/source/repos/origen-dashboard-frontend/svelte/src/pages/Clientes.svelte\")",
       "Bash(echo \"exit: $?\")",
       "Bash(docker compose *)",
-      "Read(//c/Users/byme_/**)"
+      "Read(//c/Users/byme_/**)",
+      "Bash(git mv *)",
+      "Bash(tasklist)",
+      "PowerShell(tasklist | findstr -i dotnet; Write-Output \"---\"; Get-ChildItem \"C:\\\\Users\\\\byme_\\\\source\\\\repos\\\\origen-dashboard-backend\\\\OrigenDashboard\" -Recurse | Where-Object { $_.Attributes -band [System.IO.FileAttributes]::ReadOnly } | Select-Object FullName | Head)",
+      "PowerShell(findstr -i dotnet)",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\byme_\\\\source\\\\repos\\\\origen-dashboard-backend\\\\OrigenDashboard\" -Recurse | Where-Object { $_.Attributes -band [System.IO.FileAttributes]::ReadOnly } | Select-Object -First 10 FullName)",
+      "PowerShell(cd \"C:\\\\Users\\\\byme_\\\\source\\\\repos\\\\origen-dashboard-backend\"; Rename-Item -Path \"OrigenDashboard\" -NewName \"src\"; Write-Output \"Done: $?\")",
+      "PowerShell(cmd /c \"icacls \"\"C:\\\\Users\\\\byme_\\\\source\\\\repos\\\\origen-dashboard-backend\\\\OrigenDashboard\"\" /T /Q 2>&1\")"
     ],
     "additionalDirectories": [
-      "C:\\Users\\byme_"
+      "C:\\Users\\byme_",
+      "c:\\Users\\byme_\\source\\repos\\origen-dashboard-frontend\\src\\src",
+      "c:\\Users\\byme_\\source\\repos\\origen-dashboard-frontend\\src\\.vscode"
     ]
   }
 }

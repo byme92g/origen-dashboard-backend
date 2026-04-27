@@ -2,7 +2,7 @@ services:
 
   # MySQL
   mysql:
-    image: mysql:8.0.44
+    image: mysql:8.0.36
     container_name: origen_mysql
     restart: unless-stopped
     environment:
@@ -22,7 +22,7 @@ services:
   # Backend (.NET 10 API)
   backend:
     build:
-      context: ./OrigenDashboard
+      context: ./src
       dockerfile: Dockerfile
     image: origen-backend:latest
     container_name: origen_backend
@@ -54,7 +54,7 @@ services:
   # Svelte Frontend
   svelte:
     build:
-      context: ../origen-dashboard-frontend/svelte
+      context: ../origen-dashboard-frontend/src
       dockerfile: Dockerfile
     image: origen-svelte:latest
     container_name: origen_svelte
