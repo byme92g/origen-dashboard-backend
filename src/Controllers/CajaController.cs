@@ -47,6 +47,10 @@ public class CajaController(ICajaRepository repo, IEmpleadoRepository empleadoRe
         return ApiCreated(await repo.AbrirAsync(apertura));
     }
 
+    [HttpGet("{id:int}/movimientos")]
+    public async Task<IActionResult> Movimientos(int id) =>
+        ApiOk(await repo.ObtenerMovimientosAsync(id));
+
     [HttpPost("cerrar/{id:int}")]
     public async Task<IActionResult> Cerrar(int id, [FromBody] CerrarCajaRequest req)
     {

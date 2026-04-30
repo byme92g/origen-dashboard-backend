@@ -48,6 +48,43 @@ public class CajaRepository(AppDbContext db) : ICajaRepository
         return new PagedResult<CajaApertura>(items, total, page, pageSize);
     }
 
+    public async Task<IEnumerable<object>> ObtenerMovimientosAsync(int cajaId)
+    {
+        var ingresos = await db.Ingresos
+            .Include(i => i.Cliente)
+            .Include(i => i.Servicio)
+            .Include(i => i.Paquete)
+            .Where(i => i.CajaAperturaId == cajaId)
+            .OrderBy(i => i.Fecha)
+            .Select(i => (object)new
+            {
+                id = i.Id,
+                fecha = i.Fecha,
+                tipo = "ingreso",
+                concepto = i.ConceptoPersonalizado ?? i.Servicio!.Nombre ?? i.Paquete!.Nombre ?? "Ingreso",
+                monto = i.Monto - i.Descuento,
+                detalle = i.Cliente != null ? i.Cliente.Nombre : null
+            })
+            .ToListAsync();
+
+        var egresos = await db.Egresos
+            .Include(e => e.Categoria)
+            .Where(e => e.CajaAperturaId == cajaId)
+            .OrderBy(e => e.Fecha)
+            .Select(e => (object)new
+            {
+                id = e.Id,
+                fecha = e.Fecha,
+                tipo = "egreso",
+                concepto = e.Descripcion,
+                monto = e.Monto,
+                detalle = e.Categoria != null ? e.Categoria.Nombre : null
+            })
+            .ToListAsync();
+
+        return ingresos.Concat(egresos).OrderBy(m => ((dynamic)m).fecha);
+    }
+
     public async Task<CajaApertura> AbrirAsync(CajaApertura apertura)
     {
         db.CajaAperturas.Add(apertura);

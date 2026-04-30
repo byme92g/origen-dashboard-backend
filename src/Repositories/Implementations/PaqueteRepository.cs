@@ -49,18 +49,20 @@ public class PaqueteRepository(AppDbContext db) : IPaqueteRepository
 
     public async Task<bool> ActualizarAsync(Paquete paquete, IEnumerable<int> servicioIds, IEnumerable<int> productoIds)
     {
-        db.Paquetes.Update(paquete);
+        // Mark only the scalar properties as modified — avoid cascading Update() into navigation properties
+        db.Entry(paquete).State = EntityState.Modified;
 
-        var serviciosExistentes = db.PaqueteServicios.Where(ps => ps.PaqueteId == paquete.Id);
-        db.PaqueteServicios.RemoveRange(serviciosExistentes);
+        // Delete existing junction rows by marking each tracked entity as Deleted
+        foreach (var s in paquete.Servicios.ToList())
+            db.Entry(s).State = EntityState.Deleted;
 
-        var productosExistentes = db.PaqueteProductos.Where(pp => pp.PaqueteId == paquete.Id);
-        db.PaqueteProductos.RemoveRange(productosExistentes);
+        foreach (var p in paquete.Productos.ToList())
+            db.Entry(p).State = EntityState.Deleted;
 
-        foreach (var sid in servicioIds)
+        foreach (var sid in servicioIds.Distinct())
             db.PaqueteServicios.Add(new PaqueteServicio { PaqueteId = paquete.Id, ServicioId = sid });
 
-        foreach (var pid in productoIds)
+        foreach (var pid in productoIds.Distinct())
             db.PaqueteProductos.Add(new PaqueteProducto { PaqueteId = paquete.Id, ProductoId = pid });
 
         return await db.SaveChangesAsync() > 0;

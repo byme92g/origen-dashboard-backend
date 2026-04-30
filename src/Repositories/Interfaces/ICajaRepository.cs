@@ -8,6 +8,7 @@ public interface ICajaRepository
     Task<CajaApertura?> ObtenerAperturaActualAsync();
     Task<CajaEstadoResponse> ObtenerEstadoActualAsync();
     Task<PagedResult<CajaApertura>> ObtenerHistorialAsync(int page, int pageSize);
+    Task<IEnumerable<object>> ObtenerMovimientosAsync(int cajaId);
     Task<CajaApertura> AbrirAsync(CajaApertura apertura);
     Task<CajaApertura?> CerrarAsync(int id, string? observaciones);
 }
